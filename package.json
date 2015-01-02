@@ -1,0 +1,50 @@
+{
+  "name": "Open-Fin-TS-JS-Client",
+  "version": "1.0.0",
+  "description": "JS Client für FinTS/HBCI.",
+  "main": "index.js",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "files": [
+    "LICENSE",
+    "History.md",
+    "Readme.md",
+    "index.js",
+    "lib/"
+  ],
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jschyma/open_fints_js_client"
+  },
+  "keywords": [
+    "FinTS",
+    "HBCI",
+    "js",
+    "client",
+    "Bank",
+    "Konto",
+	"Pin/Tan"
+  ],
+  "author": "Jens Schyma <jeschyma@gmail.com>",
+  "license": "AGPLv3",
+  "bugs": {
+    "url": "https://github.com/jschyma/open_fints_js_client/issues"
+  },
+  "homepage": "https://github.com/jschyma/open_fints_js_client",
+  "engines": {
+    "node": ">= 0.10.0",
+    "npm": ">= 1.0.0"
+  },
+  "dependencies": { },
+  "devDependencies": {
+	"mocha":"2.1.0",
+	"should":"4.4.2",
+	"express": "~3.4.4",
+	"body":"4.5.0"
+  }
+}

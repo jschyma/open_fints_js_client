@@ -1,4 +1,9 @@
-GNU AFFERO GENERAL PUBLIC LICENSE
+Open-Fin-TS-JS-Client is published under the GNU AFFERO GENERAL PUBLIC LICENSE, Version 3
+(AGPLv3), as included below. 
+The Author of Open-Fin-TS-JS-Client is Jens Schyma <jeschyma@gmail.com>.
+If you are interested in a commercial license please contact Jens Schyma.
+**************************************************************************
+				GNU AFFERO GENERAL PUBLIC LICENSE
                        Version 3, 19 November 2007
 
  Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
@@ -633,8 +638,8 @@ the "copyright" line and a pointer to where the full notice is found.
     Copyright (C) <year>  <name of author>
 
     This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
     This program is distributed in the hope that it will be useful,
@@ -659,4 +664,3 @@ specific requirements.
 if any, to sign a "copyright disclaimer" for the program, if necessary.
 For more information on this, and how to apply and follow the GNU AGPL, see
 <http://www.gnu.org/licenses/>.
-
