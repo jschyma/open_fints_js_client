@@ -30,7 +30,7 @@ Der einfachste Weg ist Open-Fin-TS-JS-Client über NPM durch eine Dependency in 
 Am folgenden Beispiel zum Laden von Kontoumsätzen wird gezeigt wie der Client zu bedienen ist.
 
 ```js
-var FinTSClient = require("Open-Fin-TS-JS-Client");
+var FinTSClient = require("open-fin-ts-js-client");
 // 1. Definition der Bankenliste - Echte URLs sind hier http://www.hbci-zka.de/institute/institut_auswahl.htm erhältlich
 var bankenliste = {
 		'12345678':{'blz':12345678,'url':"http://localhost:3000/cgi-bin/hbciservlet"},

@@ -21,7 +21,7 @@
  /*
 	Dieses Beispiel veranschaulicht wie der Client zu verwenden ist um Kontoumsätze anzuzeigen.
  */
-var FinTSClient = require("../");// require("Open-Fin-TS-JS-Client");
+var FinTSClient = require("../");// require("open-fin-ts-js-client");
 
 
 // 1. Definition der Bankenliste - Echte URLs sind hier http://www.hbci-zka.de/institute/institut_auswahl.htm erhältlich
