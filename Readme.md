@@ -1,25 +1,25 @@
-#Open-Fin-TS-JS-Client
 [![NPM Version][npm-image]][npm-url]
+#Open-Fin-TS-JS-Client
 
 FinTS/HBCI ist eine standardisierte Schnittstelle zur Kommunikation mit Banken von der Deutschen Kreditwirtschaft (DK).
 Es existieren derzeit drei Versionen der Schnittstelle.
   * HBCI 2.2											--> keine Unterstützung
-  * FinTS 3.0	(noch weites gehend auf HBCI basierend) --> hier unterstützt
+  * FinTS 3.0	(noch weites gehend auf HBCI basierend) --> Diese API unterstützt diese Version.
   * FinTS 4.1	(neuste auf XML basierend)				--> keine Unterstützung (noch keine große Verbreitung)
 
 Der Open-Fin-TS-JS-Client unterstützt zurzeit nur die Version FinTS 3.0 mit der Pin/Tan Sicherheitsvariante.
 
 Es existieren nur wenige Implementierungen für HBCI bzw. FinTS.
-Zurzeit (2015) nur eine für Javascript, allerdings kommerziell. Dieses Projekt versucht diese Lücke zu schließen.
+Zurzeit (2015) nur eine für Javascript, diese ist allerdings kommerziell. Dieses Projekt versucht diese Lücke zu schließen.
 
 ###Unterstützte Geschäftsvorfälle
   * SEPA Kontoinformationen laden (HKSPA)
   * Kontoumsätze laden (HKKAZ)
 
-###Unterstützte Platformen
+###Unterstützte Plattformen
   * Node-JS
   * Browserfy (In Arbeit) - allerdings ist hier ein Umweg notwendig wegen der Cross-origin resource sharing Problematik in normalen Browsern
-  * weitere Platformen mit Anpassungen denkbar
+  * weitere Plattformen mit Anpassungen denkbar
 
 ## License
 	Das Projekt wurde 2015 von Jens Schyma jeschyma@gmail.com ins Leben gerufen.
@@ -31,7 +31,7 @@ Am folgenden Beispiel zum Laden von Kontoumsätzen wird gezeigt wie der Client z
 
 ```js
 var FinTSClient = require("open-fin-ts-js-client");
-// 1. Definition der Bankenliste - Echte URLs sind hier http://www.hbci-zka.de/institute/institut_auswahl.htm erhältlich
+// 1. Definition der Bankenliste - Echte URLs sind hier http://www.hbci-zka.de/institute/institut_auswahl.htm erhältlich.
 var bankenliste = {
 		'12345678':{'blz':12345678,'url':"http://localhost:3000/cgi-bin/hbciservlet"},
 		"undefined":{'url':""}
@@ -87,14 +87,14 @@ client.EstablishConnection(function(error){
 		= Status des aktuellen Client Objekts =
 		dialog_id		- Ein FinTSClient Objekt repräsentiert ein Dialog / dies ist die vom KI zugewiesene ID
 		next_msg_nr		- Nachrichten werden Nummeriert beginnend von 1 dies ist die nächste Nummer
-		client_name		- Name des Clients, sollte an die entsprechende benutztende Software angepasst werden
+		client_name		- Name des Clients, sollte individuell belegt werden mit dem Namen der die API nutzenden Software
 		client_version	- Version des Clients
 		
-		= Bank Paramter Daten und System-ID + letzte benutzte Signatur-ID
+		= Bank Parameter Daten und System-ID + letzte benutzte Signatur-ID
 		sys_id			- vom KI zugewiesene System-ID, identifiziert diese Anwendung für den entsprechenden Benutzer eindeutig.
-						  Sollte um unnötige Anlage neuer IDs zu Vermeiden für weitere Verbindungen beibehalten werden (für immer).
+						  Sollte um die Generierung Unmengen neuer IDs zu vermeiden für weitere Verbindungen beibehalten werden (für immer).
 		last_signatur_id - Zuletzt verwendete Signatur-ID hängt an der System-ID und gewährleistet, dass Nachrichten nicht mehrfach eingereicht werden.
-		bpd				- Die Bank Paramter Daten siehe Dokumentation zu mehr Details
+		bpd				- Die Bank Parameter Daten siehe Dokumentation zu mehr Details
 		{
 			'vers_bpd':"0",									// Version der BPD
 			'bank_name':"",									// Name der Bank
@@ -114,7 +114,7 @@ client.EstablishConnection(function(error){
 			'tan':{
 				'one_step_availible':true,					// Ein-Schritt-Verfahren verfügbar
 				'multiple_tan':false,						// Mehrfachtan
-				'hash_type':"0",							// zu verwendender Hash Algorhytmus
+				'hash_type':"0",							// zu verwendender Hash Algorithmus
 				'tan_verfahren':{'999':{					// Verfügbare Tan Verfahren
 					'code':'999',								// Code des Verfahrens
 					'one_two_step_vers':"1",					// 1-Ein Schritt-Verfahren / 2-Zwei Schritt-Verfahren
@@ -136,13 +136,13 @@ client.EstablishConnection(function(error){
 			'clone':function()								// Funktion um die Daten zu Clonen
 		};
 		
-		= User Paramter Daten =
-		upd				- Die User Paramter Daten
+		= User Parameter Daten =
+		upd				- Die User Parameter Daten
 		{
-		'vers_upd':"0",										// Version der User Paramter Daten
-		'geschaefts_vorg_gesp':true,						// Wie sind die nicht aufgeführten Geschäftsvorfälle zu Werten? true =  sind gesperrt / false = Keine Aussage darüber treffbar
+		'vers_upd':"0",										// Version der User Parameter Daten
+		'geschaefts_vorg_gesp':true,						// Wie sind die nicht aufgeführten Geschäftsvorfälle zu Werten? true =  sind gesperrt / false = keine Aussage darüber treffbar
 		'availible_tan_verfahren':["999"],					// Verfügbare Tan Verfahren für den Benutzer, [0] ist die aktuell verwendete
-		'clone':function()									// Funktion um die Daten zu Clonen
+		'clone':function()									// Funktion um die Daten zu clonen
 		};
 		konten 			- Liste der Konten des Benutzers
 		[{
@@ -238,10 +238,22 @@ client.EstablishConnection(function(error){
 															}]
 		closeSecure ()			-	Stellt sicher, dass keine Sensiblen Informationen wie die PIN noch im RAM sind, sollte am Ende immer gerufen werden
 
+		
+## Entwickler-Tools
+	Das Projekt beinhaltet auch einen FinTS 3.0 Server.
+	Unterstützt wird nur das Pin/Tan Verfahren.
+	Der Server dient primär als Testserver für die Entwicklung der API, er wird auch für die TestCases verwendet.
+	[Server Standalone Script!](dev/Run_FinTSServer.js)
+## Test-Cases
+	Um die Tests zu starten im Verzeichnis des Projekts folgenden Befehl in der Konsole ausführen:
+	```
+	npm test
+	```
+	Für die Tests wird der interne FinTS Server verwendet.
 ## Links
 
-  * [FinTS 3.0 Spezifikation](http://www.hbci-zka.de/spec/3_0.htm
+  * [FinTS 3.0 Spezifikation](http://www.hbci-zka.de/spec/3_0.htm)
   * [Banken URL Liste](http://www.hbci-zka.de/institute/institut_auswahl.htm)
 
 [npm-image]: https://img.shields.io/npm/v/express.svg?style=flat
-[npm-url]: https://npmjs.org/package/express
+[npm-url]: https://npmjs.org/package/open-fin-ts-js-client
