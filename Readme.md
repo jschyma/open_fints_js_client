@@ -258,5 +258,5 @@ Für die Tests wird der interne FinTS Server verwendet.
   * [FinTS 3.0 Spezifikation](http://www.hbci-zka.de/spec/3_0.htm)
   * [Banken URL Liste](http://www.hbci-zka.de/institute/institut_auswahl.htm)
 
-[npm-image]: https://img.shields.io/npm/v/express.svg?style=flat
+[npm-image]: https://img.shields.io/npm/v/open-fin-ts-js-client.svg?style=flat
 [npm-url]: https://npmjs.org/package/open-fin-ts-js-client
