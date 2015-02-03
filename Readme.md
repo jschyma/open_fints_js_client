@@ -69,7 +69,7 @@ client.EstablishConnection(function(error){
 ```
 
 ## API Beschreibung
-
+```js
 	FinTSClient(in_blz,in_kunden_id,in_pin)
 		in_blz			- Die entsprechende BLZ als Zahl oder String
 		in_kunden_id	- Die Benutzerkennung bzw. Kunden-ID - 9999999999 = Anonymer Benutzer
@@ -237,19 +237,22 @@ client.EstablishConnection(function(error){
 																]
 															}]
 		closeSecure ()			-	Stellt sicher, dass keine Sensiblen Informationen wie die PIN noch im RAM sind, sollte am Ende immer gerufen werden
-
-		
+```
 ## Entwickler-Tools
-	Das Projekt beinhaltet auch einen FinTS 3.0 Server.
-	Unterstützt wird nur das Pin/Tan Verfahren.
-	Der Server dient primär als Testserver für die Entwicklung der API, er wird auch für die TestCases verwendet.
-	[Server Standalone Script!](dev/Run_FinTSServer.js)
+
+Das Projekt beinhaltet auch einen FinTS 3.0 Server.
+Unterstützt wird nur das Pin/Tan Verfahren.
+Der Server dient primär als Testserver für die Entwicklung der API, er wird auch für die TestCases verwendet.
+  * [Server Standalone Script!](dev/Run_FinTSServer.js)
+
 ## Test-Cases
-	Um die Tests zu starten im Verzeichnis des Projekts folgenden Befehl in der Konsole ausführen:
-	```
-	npm test
-	```
-	Für die Tests wird der interne FinTS Server verwendet.
+
+Um die Tests zu starten im Verzeichnis des Projekts folgenden Befehl in der Konsole ausführen:
+```shell
+npm test
+```
+Für die Tests wird der interne FinTS Server verwendet.
+
 ## Links
 
   * [FinTS 3.0 Spezifikation](http://www.hbci-zka.de/spec/3_0.htm)
