@@ -187,4 +187,53 @@ describe('tests',function(){
 			}
 		});
 	});
+	it('Test 8 - MsgSEPASingleTransfer - falsche TAN',function(done){
+		var client = new FinTSClient(12345678,"test1","1234",bankenliste);
+		client.EstablishConnection(function(error){
+			if(error){
+				throw error;
+			}else{
+				client.konten[0].sepa_data.should.not.equal(null);
+				client.MsgSEPASingleTransfer(client.konten[0].sepa_data,{iban:"DE60123456780000000003",bic:"GENODE00TES"},"Max Muster","Verwzweck",10.99,function(error2,rMsg,send_tan_response){
+					if(error2){
+						throw error2;
+					}else{
+						// Alles gut, wir müssen tan senden
+						should(send_tan_response).not.equal(null);
+						send_tan_response.should.be.an.Function;
+						send_tan_response("FALSCH",function(error3,rMsg3){
+							should(error3).not.equal(null);
+							done();
+						});
+					}
+				});
+			}
+		});
+	});
+	it('Test 9 - MsgSEPASingleTransfer - erfolgreich',function(done){
+		var client = new FinTSClient(12345678,"test1","1234",bankenliste);
+		client.EstablishConnection(function(error){
+			if(error){
+				throw error;
+			}else{
+				client.konten[0].sepa_data.should.not.equal(null);
+				client.MsgSEPASingleTransfer(client.konten[0].sepa_data,{iban:"DE60123456780000000003",bic:"GENODE00TES"},"Max Muster","Verwzweck",10.99,function(error2,rMsg,send_tan_response){
+					if(error2){
+						throw error2;
+					}else{
+						// Alles gut, wir müssen tan senden
+						should(send_tan_response).not.equal(null);
+						send_tan_response.should.be.an.Function;
+						send_tan_response("1234",function(error3,rMsg3){
+							if(error3){
+								throw error3;
+							}else{
+								done();
+							}
+						});
+					}
+				});
+			}
+		});
+	});
 });

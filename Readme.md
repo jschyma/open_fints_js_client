@@ -15,6 +15,7 @@ Zurzeit (2015) nur eine für Javascript, diese ist allerdings kommerziell. Diese
 ###Unterstützte Geschäftsvorfälle
   * SEPA Kontoinformationen laden (HKSPA)
   * Kontoumsätze laden (HKKAZ)
+  * SEPA Einzelüberweisung (HKCCS)
 
 ###Unterstützte Plattformen
   * Node-JS

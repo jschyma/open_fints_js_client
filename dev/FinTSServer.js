@@ -89,22 +89,28 @@ module.exports = function(){
 					   recvMsg.segments[i].name=="HNSHK"){
 					   	// nichts tun
 					}else if(recvMsg.segments[i].name=="HKIDN"){
-						if(!me.handleHKIDN(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKIDN(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}else if(recvMsg.segments[i].name=="HKVVB"){
-						if(!me.handleHKVVB(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKVVB(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}else if(recvMsg.segments[i].name=="HKSYN"){
-						if(!me.handleHKSYN(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKSYN(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}else if(recvMsg.segments[i].name=="HKEND"){
-						if(!me.handleHKEND(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKEND(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}else if(recvMsg.segments[i].name=="HKSPA"){
-						if(!me.handleHKSPA(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKSPA(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}else if(recvMsg.segments[i].name=="HKKAZ"){
-						if(!me.handleHKKAZ(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKKAZ(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
+							break;
+					}else if(recvMsg.segments[i].name=="HKCCS"){
+						if(!me.handleHKCCS(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
+							break;
+					}else if(recvMsg.segments[i].name=="HKTAN"&&recvMsg.segments[i].vers==5){
+						if(!me.handleHKTAN(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}
 				}
@@ -289,8 +295,8 @@ module.exports = function(){
 		}
 		if(upd_vers!="3"){
 			ctrl.content.push(Helper.newSegFromArrayWithBez('HIUPA', 4,bez,[dialog_obj.user,"2","3"]));
-			ctrl.content.push(Helper.newSegFromArrayWithBez('HIUPD', 6,bez,[["1","","280",me.my_blz],"DE111234567800000001",dialog_obj.user,"","EUR","Fullname","","Girokonto","",["HKSAK","1"],["HKISA","1"],["HKSSP","1"],["HKSAL","1"],["HKKAZ","1"],["HKEKA","1"],["HKCDB","1"],["HKPSP","1"],["HKCSL","1"],["HKCDL","1"],["HKPAE","1"],["HKPPD","1"],["HKCDN","1"],["HKCSB","1"],["HKCUB","1"],["HKQTG","1"],["HKSPA","1"],["HKDSB","1"],["HKCCM","1"],["HKCUM","1"],["HKCCS","1"],["HKCDE","1"],["HKCSE","1"],["HKDSW","1"],["HKPRO","1"],["HKSAL","1"],["HKKAZ","1"],["HKTUL","1"],["HKTUB","1"],["HKPRO","1"],["GKVPU","1"],["GKVPD","1"]]));
-			ctrl.content.push(Helper.newSegFromArrayWithBez('HIUPD', 6,bez,[["2","","280",me.my_blz],"DE111234567800000002",dialog_obj.user,"","EUR","Fullname","","Tagesgeld","",["HKSAK","1"],["HKISA","1"],["HKSSP","1"],["HKSAL","1"],["HKKAZ","1"],["HKEKA","1"],["HKPSP","1"],["HKCSL","1"],["HKPAE","1"],["HKCSB","1"],["HKCUB","1"],["HKQTG","1"],["HKSPA","1"],["HKCUM","1"],["HKCCS","1"],["HKCSE","1"],["HKPRO","1"],["HKSAL","1"],["HKKAZ","1"],["HKTUL","1"],["HKTUB","1"],["HKPRO","1"],["GKVPU","1"],["GKVPD","1"]]));
+			ctrl.content.push(Helper.newSegFromArrayWithBez('HIUPD', 6,bez,[["1","","280",me.my_blz],"DE17123456780000000001",dialog_obj.user,"","EUR","Fullname","","Girokonto","",["HKSAK","1"],["HKISA","1"],["HKSSP","1"],["HKSAL","1"],["HKKAZ","1"],["HKEKA","1"],["HKCDB","1"],["HKPSP","1"],["HKCSL","1"],["HKCDL","1"],["HKPAE","1"],["HKPPD","1"],["HKCDN","1"],["HKCSB","1"],["HKCUB","1"],["HKQTG","1"],["HKSPA","1"],["HKDSB","1"],["HKCCM","1"],["HKCUM","1"],["HKCCS","1"],["HKCDE","1"],["HKCSE","1"],["HKDSW","1"],["HKPRO","1"],["HKSAL","1"],["HKKAZ","1"],["HKTUL","1"],["HKTUB","1"],["HKPRO","1"],["GKVPU","1"],["GKVPD","1"]]));
+			ctrl.content.push(Helper.newSegFromArrayWithBez('HIUPD', 6,bez,[["2","","280",me.my_blz],"DE87123456780000000002",dialog_obj.user,"","EUR","Fullname","","Tagesgeld","",["HKSAK","1"],["HKISA","1"],["HKSSP","1"],["HKSAL","1"],["HKKAZ","1"],["HKEKA","1"],["HKPSP","1"],["HKCSL","1"],["HKPAE","1"],["HKCSB","1"],["HKCUB","1"],["HKQTG","1"],["HKSPA","1"],["HKCUM","1"],["HKCCS","1"],["HKCSE","1"],["HKPRO","1"],["HKSAL","1"],["HKKAZ","1"],["HKTUL","1"],["HKTUB","1"],["HKPRO","1"],["GKVPU","1"],["GKVPD","1"]]));
 			msg_array.push(["3050","","UPD nicht mehr aktuell, aktuelle Version enthalten."]);
 			msg_array.push(["3920","","Zugelassene TAN-Verfahren fur den Benutzer","942"]);
 		}
@@ -317,7 +323,7 @@ module.exports = function(){
     	var bez = segment.nr;
     	ctrl.gmsg["0010"]=["0010","","Nachricht entgegengenommen."];
     	ctrl.msgs.push(Helper.newSegFromArrayWithBez('HIRMS', 2,bez,[["0020","","Auftrag ausgefuehrt"]]));
-		ctrl.content.push(Helper.newSegFromArrayWithBez('HISPA', 1,bez,[["J","DE111234567800000001","GENODE00TES","1","","280","12345678"],["J","DE111234567800000002","GENODE00TES","2","","280","12345678"]]));
+		ctrl.content.push(Helper.newSegFromArrayWithBez('HISPA', 1,bez,[["J","DE17123456780000000001","GENODE00TES","1","","280","12345678"],["J","DE87123456780000000002","GENODE00TES","2","","280","12345678"]]));
     	return true;
     };
 	me.handleHKKAZ = function(segment,ctrl,dialog_obj){
@@ -355,5 +361,52 @@ module.exports = function(){
 		mt_490	+=	"-\r\n";
 		ctrl.content.push(Helper.newSegFromArrayWithBez('HIKAZ',7,bez,[mt_490]));
 		return true;
+	};
+	me.next_tan_nr  = 0;
+	me.tan_referenz = {};
+	me.handleHKTAN = function(segment,ctrl,dialog_obj,recvMsg){
+		// Segmentversion 3
+		if(segment.getEl(1)!="4"){
+			var bez = segment.nr;
+			var id = segment.getEl(5);
+			if(id in me.tan_referenz){
+				// Tan prüfen
+				var tan = "";
+				try{ tan = recvMsg.selectSegByName("HNSHA")[0].getEl(3).getEl(2); }catch(e){};
+				if(me.tan_referenz[id].tan==tan){
+					return me.tan_referenz[id].cb(segment,ctrl,dialog_obj,me.tan_referenz[id].seg,me.tan_referenz[id].nr);
+				}else{
+					ctrl.gmsg["3060"]=["3060","","Bitte beachten Sie die enthaltenen Warnungen/Hinweise"];
+					ctrl.msgs.push(Helper.newSegFromArrayWithBez('HIRMS', 2,bez,[["9941","","TAN ungultig"]]));
+					return true;
+				}
+			}else{
+				ctrl.gmsg["3060"]=["3060","","Bitte beachten Sie die enthaltenen Warnungen/Hinweise"];
+				ctrl.msgs.push(Helper.newSegFromArrayWithBez('HIRMS', 2,bez,[["9210","","Auftrag abgelehnt – Auftragsreferenz ist unbekannt"]]));
+				return true;
+			}
+		}
+		return true;
+	};
+	me.handleHKCCS = function(segment,ctrl,dialog_obj,recvMsg){
+		var HKTAN = recvMsg.selectSegByName("HKTAN")[0];
+		var nr = "AUFTRAGSREF_"+(me.next_tan_nr++);
+		me.tan_referenz[nr]={};
+		me.tan_referenz[nr].seg = segment;
+		me.tan_referenz[nr].tan = "1234";
+		me.tan_referenz[nr].cb  = me.handleHKCCS_step2;
+		me.tan_referenz[nr].nr	= nr;
+    	var bez = segment.nr;
+    	ctrl.gmsg["0010"]=["0010","","Nachricht entgegengenommen."];
+    	ctrl.msgs.push(Helper.newSegFromArrayWithBez('HIRMS', 2,bez,[["0030","","Auftrag empfangen - Sicherheitsfreigabe erforderlich"]]));
+		ctrl.content.push(Helper.newSegFromArrayWithBez('HITAN', 5,HKTAN.nr,[4,NULL,nr,"SMS wurde versandt. Bitte geben Sie diese TAN ein."]));
+    	return true;
+    };
+	me.handleHKCCS_step2 = function(segment,ctrl,dialog_obj,orig_seg,auf_nr){
+		var bez = segment.nr;
+		ctrl.gmsg["0010"]=["0010","","Nachricht entgegengenommen."];
+    	ctrl.msgs.push(Helper.newSegFromArrayWithBez('HIRMS', 2,bez,[["0020","","*SEPA-Einzeluberweisung erfolgreich"],["0900","","*TAN entwertet."]]));
+		ctrl.content.push(Helper.newSegFromArrayWithBez('HITAN', 5,bez,[2,NULL,auf_nr]));
+    	return true;
 	};
 };
