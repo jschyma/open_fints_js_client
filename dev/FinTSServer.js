@@ -353,7 +353,7 @@ module.exports = function(){
 		mt_490	+=	"?31?32Bank\r\n";
 		mt_490	+=	":62F:C150101EUR1423,60\r\n";
 		mt_490	+=	"-\r\n";
-		ctrl.content.push(Helper.newSegFromArrayWithBez('HIKAZ',7,bez,[mt_490]));
+		ctrl.content.push(Helper.newSegFromArrayWithBez('HIKAZ',7,bez,[Helper.Byte(mt_490)]));
 		return true;
 	};
 };

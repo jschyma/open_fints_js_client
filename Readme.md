@@ -70,10 +70,11 @@ client.EstablishConnection(function(error){
 
 ## API Beschreibung
 ```js
-	FinTSClient(in_blz,in_kunden_id,in_pin)
+	FinTSClient(in_blz,in_kunden_id,in_pin,in_logger)
 		in_blz			- Die entsprechende BLZ als Zahl oder String
 		in_kunden_id	- Die Benutzerkennung bzw. Kunden-ID - 9999999999 = Anonymer Benutzer
 		in_pin			- Die Pin
+		in_logger		- Ein Bunyan Logger per default wird nichts gelogged
 		
 	Attribute
 		= Notwendig um die Verbindung herzustellen =
@@ -252,6 +253,23 @@ Um die Tests zu starten im Verzeichnis des Projekts folgenden Befehl in der Kons
 npm test
 ```
 Für die Tests wird der interne FinTS Server verwendet.
+
+## Logging
+
+Logs werden mit [Bunyan](https://www.npmjs.com/package/bunyan) erstellt. Standardmäßig werden keine Logs erstellt. Soll das Logging aktiviert werden muss wie folgt ein Logger beim Aufruf des Konstruktors mitgegeben werden.
+```js
+	var bunyan = require("bunyan");
+	var log = bunyan.createLogger({
+			name: 'demo_fints_logger',
+			stream: process.stdout,
+			level: 'trace'
+		});
+	var client = new FinTSClient(12345678,"test1","1234",bankenliste,log);
+```
+Für eine bessere Darstellung empfiehlt sich Bunyan CLI.
+```shell
+node examples/zeige_kontoumsaetze.js log | bunyan -l trace
+```
 
 ## Links
 
