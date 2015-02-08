@@ -18,8 +18,9 @@
  *	  Please contact Jens Schyma if you are interested in a commercial license.
  *	
  */
-// Dieser FinTS 3.0 Server ist nur für Testzwecke und gibt daher auch nur Dummy Daten zurück
+// Dieser HBCI 2.2 Server ist nur für Testzwecke und gibt daher auch nur Dummy Daten zurück
 // der Funktionsumfang ist deutlich beschränkt und dient Primär des Tests des FinTSJSClients
+// Achtung basiert noch im wesentlichen auf FINTS 3.0
 var classes = require("../lib/Classes.js");
 var NULL        = classes.NULL;
 var Nachricht   = classes.Nachricht;
@@ -34,17 +35,17 @@ module.exports = function(){
     me.dialog_array   = new Object();
     me.user_db		   = {"test1":{'u':"test1",'pin':'1234'}};
     me.dbg_log_nr	= 1;
-	me.my_url		= "http://localhost:3000/cgi-bin/hbciservlet";
+	me.my_url		= "http://localhost:3000/cgi-bin/hbciservlet22";
 	me.my_host		= "localhost:3000";
 	me.my_debug_log = true;
-	me.proto_version = 300;
-    
+    me.proto_version = 220;
+	
     me.handleIncomeMessage = function(txt){
         var s = new Buffer(txt, 'base64').toString('utf8');
 		if(me.my_debug_log)
 			console.log("Incoming: \t"+s);
 		// Debug save incoming
-		fs.appendFileSync("log_send_msg.txt","Neue Msg Nr: "+me.dbg_log_nr+"\n\r"+s+"\n\r\n\r");
+		fs.appendFileSync("log_send_msg22.txt","Neue Msg Nr: "+me.dbg_log_nr+"\n\r"+s+"\n\r\n\r");
 		me.dbg_log_nr++;
 		// End Debug
 		var recvMsg = new Nachricht(me.proto_version);

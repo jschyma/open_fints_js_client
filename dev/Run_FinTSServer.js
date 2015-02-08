@@ -22,11 +22,13 @@ var express = require('express');
 var http = require('http');
 var textBody = require("body");
 var FinTSServer = require("./FinTSServer.js");
+var FinTSServer22 = require("./FinTSServer22.js");
 
 var ipaddr  = process.env.IP || "127.0.0.1";//process.env.IP;
 var port      = process.env.PORT || 3000;//process.env.PORT;
 var app = express();
 var myFINTSServer = new FinTSServer();
+var myFINTSServer22 = new FinTSServer22();
 app.configure(function () {
 	app.get("/",function(req, res){
 		res.setHeader('Content-Type', 'text/html');
@@ -34,6 +36,18 @@ app.configure(function () {
 	});
 	
 	app.post("/cgi-bin/hbciservlet",function(req, res){
+		textBody(req, res, function (err, body) {
+			// err probably means invalid HTTP protocol or some shiz.
+			if (err) {
+				res.statusCode = 500;
+				return res.end("NO U");
+			}
+			res.setHeader('Content-Type', 'text/plain');
+			res.send(myFINTSServer.handleIncomeMessage(body));
+		});
+		
+	});
+	app.post("/cgi-bin/hbciservlet22",function(req, res){
 		textBody(req, res, function (err, body) {
 			// err probably means invalid HTTP protocol or some shiz.
 			if (err) {
