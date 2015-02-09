@@ -26,6 +26,7 @@ var FinTSClient = require("../");
 var should = require('should');
 
 describe('tests',function(){
+	var myFINTSServer = null;
 	var bankenliste = {
 		'12345678':{'blz':12345678,'url':"http://TOBESET/cgi-bin/hbciservlet"},
 		"undefined":{'url':""}
@@ -35,7 +36,7 @@ describe('tests',function(){
 		var ipaddr  = process.env.IP || "127.0.0.1";//process.env.IP;
 		var port      = process.env.PORT || 3000;//process.env.PORT;
 		var app = express();
-		var myFINTSServer = new FinTSServer();
+		myFINTSServer = new FinTSServer();
 		myFINTSServer.my_debug_log = false;
 		app.configure(function () {
 			app.get("/",function(req, res){
@@ -146,6 +147,28 @@ describe('tests',function(){
 			}		
 		});
 	});
+	it('Test 5.1 - MsgRequestSepa - failed connection',function(done){
+		var client = new FinTSClient(12345678,"test1","1234",bankenliste);
+		client.MsgInitDialog(function(error,recvMsg,has_neu_url){
+			if(error){
+				throw error;
+			}else{
+				client.bpd.should.have.property("vers_bpd","78");
+				client.upd.should.have.property("vers_upd","3");
+				client.sys_id.should.equal("DDDA10000000000000000000000A");
+				client.konten.should.be.an.Array;
+				client.konten.should.have.a.lengthOf(2);
+				client.konten[0].iban.should.equal("DE111234567800000001");
+				should(client.konten[0].sepa_data).equal(null);
+				client.bpd.url ="http://thiswillnotworkurl";
+				client.MsgRequestSepa(null,function(error3,recvMsg3,sepa_list){
+								should(error3).not.equal(null);
+								error3.should.be.instanceOf(client.Exceptions.ConnectionFailedException);
+								done();
+							});
+			}		
+		});
+	});
 	it('Test 6 - EstablishConnection',function(done){
 		var client = new FinTSClient(12345678,"test1","1234",bankenliste);
 		client.EstablishConnection(function(error){
@@ -166,25 +189,61 @@ describe('tests',function(){
 		});
 	});
 	it('Test 7 - MsgGetKontoUmsaetze',function(done){
-		var client = new FinTSClient(12345678,"test1","1234",bankenliste);
-		client.EstablishConnection(function(error){
-			if(error){
-				throw error;
-			}else{
-				client.konten[0].sepa_data.should.not.equal(null);
-				client.MsgGetKontoUmsaetze(client.konten[0].sepa_data,null,null,function(error2,rMsg,data){
-					if(error2){
-						throw error2;
-					}else{
-						// Alles gut
-						should(data).not.equal(null);
-						data.should.be.an.Array;
-						should(data[0]).not.equal(null);
-						// Testcase erweitern
-						done();
-					}
-				});
-			}
+			var client = new FinTSClient(12345678,"test1","1234",bankenliste);
+			client.EstablishConnection(function(error){
+				if(error){
+					throw error;
+				}else{
+					client.konten[0].sepa_data.should.not.equal(null);
+					client.MsgGetKontoUmsaetze(client.konten[0].sepa_data,null,null,function(error2,rMsg,data){
+						if(error2){
+							throw error2;
+						}else{
+							// Alles gut
+							should(data).not.equal(null);
+							data.should.be.an.Array;
+							should(data[0]).not.equal(null);
+							should(data[1]).not.equal(null);
+							data[0].schlusssaldo.value.should.equal(1223.57);
+							data[1].schlusssaldo.value.should.equal(1423.6);
+							// Testcase erweitern
+							done();
+						}
+					});
+				}
+			});
+		});
+	describe('mit Aufsetzpunkt', function(){
+		before(function(){
+			myFINTSServer.hikas_2_mode = true;
+		  });
+		it('Test 7.1 - MsgGetKontoUmsaetze - mit Aufsetzpunkt',function(done){
+			var client = new FinTSClient(12345678,"test1","1234",bankenliste);
+			client.EstablishConnection(function(error){
+				if(error){
+					throw error;
+				}else{
+					client.konten[0].sepa_data.should.not.equal(null);
+					client.MsgGetKontoUmsaetze(client.konten[0].sepa_data,null,null,function(error2,rMsg,data){
+						if(error2){
+							throw error2;
+						}else{
+							// Alles gut
+							should(data).not.equal(null);
+							data.should.be.an.Array;
+							should(data[0]).not.equal(null);
+							should(data[1]).not.equal(null);
+							data[0].schlusssaldo.value.should.equal(1223.57);
+							data[1].schlusssaldo.value.should.equal(1423.6);
+							// Testcase erweitern
+							done();
+						}
+					});
+				}
+			});
+		});
+		after(function(){
+			myFINTSServer.hikas_2_mode = false;
 		});
 	});
 });

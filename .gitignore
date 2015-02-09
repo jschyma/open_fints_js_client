@@ -22,3 +22,4 @@ node_modules
 log_send_msg.txt
 in_fints.txt
 out_fints.txt
+coverage

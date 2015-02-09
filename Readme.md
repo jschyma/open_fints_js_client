@@ -254,6 +254,15 @@ npm test
 ```
 Für die Tests wird der interne FinTS Server verwendet.
 
+Um ein Code-Coverage Test durchzuführen folgenden Befehl im Paket eingeben.
+```shell
+npm run coverage
+```
+Die Demos können auch direkt aus dem Paket ausgeführt werden.
+```shell
+npm run demo
+```
+
 ## Logging
 
 Logs werden mit [Bunyan](https://www.npmjs.com/package/bunyan) erstellt. Standardmäßig werden keine Logs erstellt. Soll das Logging aktiviert werden muss wie folgt ein Logger beim Aufruf des Konstruktors mitgegeben werden.
