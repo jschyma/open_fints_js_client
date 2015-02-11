@@ -20,6 +20,7 @@
  */
 // Dieser FinTS 3.0 Server ist nur für Testzwecke und gibt daher auch nur Dummy Daten zurück
 // der Funktionsumfang ist deutlich beschränkt und dient Primär des Tests des FinTSJSClients
+"use strict";
 var classes = require("../lib/Classes.js");
 var NULL        = classes.NULL;
 var Nachricht   = classes.Nachricht;
@@ -54,7 +55,7 @@ module.exports = function(){
 			var sendMsg = null;
 			// 1. Schauen ob schon exitierender Dialog
 			var dialog_obj = me.getDialogFromMsg(recvMsg);
-			if(dialog_obj==null){
+			if(dialog_obj===null){
 				// Initialisierung
 				var r=me.handleDialogInit(recvMsg);
 				if(r.e){
@@ -77,7 +78,7 @@ module.exports = function(){
 	    		}
 			}
 			// 2. weiter bearbeiten
-			if(sendtxt==null){
+			if(sendtxt===null){
 				var ctrl = {
 					'gmsg':{},
 					'msgs':[],
@@ -157,7 +158,7 @@ module.exports = function(){
     		if(HNSHK.getEl(1).getEl(1)!="PIN")
     			return false;// andere als PIN unterstützen wir nicht
     		var pin = "";
-    		try{pin=HNSHA.getEl(3).getEl(1)}catch(e){pin=HNSHA.getEl(3);}
+    		try{pin=HNSHA.getEl(3).getEl(1);}catch(e){pin=HNSHA.getEl(3);}
     		return me.user_db[dialog_obj.user].pin==pin;
     	}else{
     		return true;

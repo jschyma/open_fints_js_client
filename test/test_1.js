@@ -18,6 +18,7 @@
  *	  Please contact Jens Schyma if you are interested in a commercial license.
  *	
  */
+ "use strict";
 var express = require('express');
 var http = require('http');
 var textBody = require("body");
@@ -25,7 +26,19 @@ var FinTSServer = require("../dev/FinTSServer.js");
 var FinTSClient = require("../");
 var should = require('should');
 
-describe('tests',function(){
+var mocha_catcher = function(done,cb){
+	return function(){
+		var orig_arguments = arguments;
+		try{
+			cb.apply(null,orig_arguments);
+		}catch(mocha_error){
+			done(mocha_error);
+		}
+	};
+};
+
+describe('testserver',function(){
+	this.timeout(2*60*1000);
 	var myFINTSServer = null;
 	var bankenliste = {
 		'12345678':{'blz':12345678,'url':"http://TOBESET/cgi-bin/hbciservlet"},
@@ -73,7 +86,7 @@ describe('tests',function(){
 	it('Test 1 - MsgInitDialog',function(done){
 		var client = new FinTSClient(12345678,"test1","1234",bankenliste);
 		var old_url = client.dest_url;
-		client.MsgInitDialog(function(error,recvMsg,has_neu_url){
+		client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
 			if(error)
 				throw error;
 			client.bpd.should.have.property("vers_bpd","78");
@@ -84,48 +97,48 @@ describe('tests',function(){
 			client.konten[0].iban.should.equal("DE111234567800000001");
 			should(client.konten[0].sepa_data).equal(null);
 			done();		
-		});
+		}));
 	});
 	it('Test 2 - MsgInitDialog wrong user',function(done){
 		var client = new FinTSClient(12345678,"test2","1234",bankenliste);
 		var old_url = client.dest_url;
-		client.MsgInitDialog(function(error,recvMsg,has_neu_url){
+		client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
 			if(error){
 				done();
 			}else{
 				throw "Erfolg sollte nicht passieren";
 			}		
-		});
+		}));
 	});
 	it('Test 3 - MsgInitDialog wrong pin',function(done){
 		var client = new FinTSClient(12345678,"test1","12341",bankenliste);
 		var old_url = client.dest_url;
-		client.MsgInitDialog(function(error,recvMsg,has_neu_url){
+		client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
 			if(error){
 				done();
 			}else{
 				throw "Erfolg sollte nicht passieren";
 			}		
-		});
+		}));
 	});
 	it('Test 4 - MsgEndDialog',function(done){
 		var client = new FinTSClient(12345678,"test1","1234",bankenliste);
 		var old_url = client.dest_url;
-		client.MsgInitDialog(function(error,recvMsg,has_neu_url){
+		client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
 			if(error){
 				throw error;
 			}else{
-				client.MsgEndDialog(function(error,recvMsg2){
+				client.MsgEndDialog(mocha_catcher(done,function(error,recvMsg2){
 					if(error)
 						throw error;
 					done();
-				});
+				}));
 			}		
-		});
+		}));
 	});
 	it('Test 5 - MsgRequestSepa',function(done){
 		var client = new FinTSClient(12345678,"test1","1234",bankenliste);
-		client.MsgInitDialog(function(error,recvMsg,has_neu_url){
+		client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
 			if(error){
 				throw error;
 			}else{
@@ -136,20 +149,20 @@ describe('tests',function(){
 				client.konten.should.have.a.lengthOf(2);
 				client.konten[0].iban.should.equal("DE111234567800000001");
 				should(client.konten[0].sepa_data).equal(null);
-				client.MsgRequestSepa(null,function(error3,recvMsg3,sepa_list){
+				client.MsgRequestSepa(null,mocha_catcher(done,function(error3,recvMsg3,sepa_list){
 								if(error3)
 									throw error3;
 								sepa_list.should.be.an.Array;
 								sepa_list[0].iban.should.equal("DE111234567800000001");
 								sepa_list[0].bic.should.equal("GENODE00TES");
 								done();
-							});
+							}));
 			}		
-		});
+		}));
 	});
 	it('Test 5.1 - MsgRequestSepa - failed connection',function(done){
 		var client = new FinTSClient(12345678,"test1","1234",bankenliste);
-		client.MsgInitDialog(function(error,recvMsg,has_neu_url){
+		client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
 			if(error){
 				throw error;
 			}else{
@@ -161,17 +174,17 @@ describe('tests',function(){
 				client.konten[0].iban.should.equal("DE111234567800000001");
 				should(client.konten[0].sepa_data).equal(null);
 				client.bpd.url ="http://thiswillnotworkurl";
-				client.MsgRequestSepa(null,function(error3,recvMsg3,sepa_list){
+				client.MsgRequestSepa(null,mocha_catcher(done,function(error3,recvMsg3,sepa_list){
 								should(error3).not.equal(null);
 								error3.should.be.instanceOf(client.Exceptions.ConnectionFailedException);
 								done();
-							});
+							}));
 			}		
-		});
+		}));
 	});
 	it('Test 6 - EstablishConnection',function(done){
 		var client = new FinTSClient(12345678,"test1","1234",bankenliste);
-		client.EstablishConnection(function(error){
+		client.EstablishConnection(mocha_catcher(done,function(error){
 			if(error){
 				throw error;
 			}else{
@@ -186,16 +199,16 @@ describe('tests',function(){
 				client.konten[0].sepa_data.bic.should.equal("GENODE00TES");
 				done();
 			}
-		});
+		}));
 	});
 	it('Test 7 - MsgGetKontoUmsaetze',function(done){
 			var client = new FinTSClient(12345678,"test1","1234",bankenliste);
-			client.EstablishConnection(function(error){
+			client.EstablishConnection(mocha_catcher(done,function(error){
 				if(error){
 					throw error;
 				}else{
 					client.konten[0].sepa_data.should.not.equal(null);
-					client.MsgGetKontoUmsaetze(client.konten[0].sepa_data,null,null,function(error2,rMsg,data){
+					client.MsgGetKontoUmsaetze(client.konten[0].sepa_data,null,null,mocha_catcher(done,function(error2,rMsg,data){
 						if(error2){
 							throw error2;
 						}else{
@@ -209,9 +222,9 @@ describe('tests',function(){
 							// Testcase erweitern
 							done();
 						}
-					});
+					}));
 				}
-			});
+			}));
 		});
 	describe('mit Aufsetzpunkt', function(){
 		before(function(){
@@ -219,12 +232,12 @@ describe('tests',function(){
 		  });
 		it('Test 7.1 - MsgGetKontoUmsaetze - mit Aufsetzpunkt',function(done){
 			var client = new FinTSClient(12345678,"test1","1234",bankenliste);
-			client.EstablishConnection(function(error){
+			client.EstablishConnection(mocha_catcher(done,function(error){
 				if(error){
 					throw error;
 				}else{
 					client.konten[0].sepa_data.should.not.equal(null);
-					client.MsgGetKontoUmsaetze(client.konten[0].sepa_data,null,null,function(error2,rMsg,data){
+					client.MsgGetKontoUmsaetze(client.konten[0].sepa_data,null,null,mocha_catcher(done,function(error2,rMsg,data){
 						if(error2){
 							throw error2;
 						}else{
@@ -238,9 +251,9 @@ describe('tests',function(){
 							// Testcase erweitern
 							done();
 						}
-					});
+					}));
 				}
-			});
+			}));
 		});
 		after(function(){
 			myFINTSServer.hikas_2_mode = false;

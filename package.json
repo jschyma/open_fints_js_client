@@ -19,7 +19,8 @@
     "coverage": "istanbul cover node_modules/mocha/bin/_mocha",
     "test_server": "node dev/Run_FinTSServer.js",
     "demo": "node examples/zeige_kontoumsaetze.js log | bunyan -l trace",
-    "demo_dbg": "node-debug examples/zeige_kontoumsaetze.js  | bunyan -l trace"
+    "demo_dbg": "node-debug examples/zeige_kontoumsaetze.js  | bunyan -l trace",
+	"test_dbg": "node-debug _mocha -g 'tests Test 1'"
   },
   "repository": {
     "type": "git",
