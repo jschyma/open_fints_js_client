@@ -259,4 +259,24 @@ describe('testserver',function(){
 			myFINTSServer.hikas_2_mode = false;
 		});
 	});
+	it('Test 8 - MsgGetSaldo',function(done){
+		var client = new FinTSClient(12345678,"test1","1234",bankenliste);
+		client.EstablishConnection(mocha_catcher(done,function(error){
+				if(error){
+					throw error;
+				}else{
+					client.konten[0].sepa_data.should.not.equal(null);
+					client.MsgGetSaldo(client.konten[0].sepa_data,null,null,mocha_catcher(done,function(error2,rMsg,data){
+						// TODO Better Test Case
+						if(error2){
+							throw error2;
+						}else{
+							// Testcase erweitern
+							client.MsgEndDialog(function(error,recvMsg2){	});
+							done();
+						}
+					}));
+				}
+		}));
+	});
 });
