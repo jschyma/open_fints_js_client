@@ -20,6 +20,7 @@
  */
 // Dieser FinTS 3.0 Server ist nur für Testzwecke und gibt daher auch nur Dummy Daten zurück
 // der Funktionsumfang ist deutlich beschränkt und dient Primär des Tests des FinTSJSClients
+"use strict";
 var classes = require("../lib/Classes.js");
 var NULL        = classes.NULL;
 var Nachricht   = classes.Nachricht;
@@ -38,6 +39,7 @@ module.exports = function(){
 	me.my_host		= "localhost:3000";
 	me.my_debug_log = true;
 	me.proto_version = 300;
+	me.hikas_2_mode = false;
     
     me.handleIncomeMessage = function(txt){
         var s = new Buffer(txt, 'base64').toString('utf8');
@@ -54,7 +56,7 @@ module.exports = function(){
 			var sendMsg = null;
 			// 1. Schauen ob schon exitierender Dialog
 			var dialog_obj = me.getDialogFromMsg(recvMsg);
-			if(dialog_obj==null){
+			if(dialog_obj===null){
 				// Initialisierung
 				var r=me.handleDialogInit(recvMsg);
 				if(r.e){
@@ -77,7 +79,7 @@ module.exports = function(){
 	    		}
 			}
 			// 2. weiter bearbeiten
-			if(sendtxt==null){
+			if(sendtxt===null){
 				var ctrl = {
 					'gmsg':{},
 					'msgs':[],
@@ -157,7 +159,7 @@ module.exports = function(){
     		if(HNSHK.getEl(1).getEl(1)!="PIN")
     			return false;// andere als PIN unterstützen wir nicht
     		var pin = "";
-    		try{pin=HNSHA.getEl(3).getEl(1)}catch(e){pin=HNSHA.getEl(3);}
+    		try{pin=HNSHA.getEl(3).getEl(1);}catch(e){pin=HNSHA.getEl(3);}
     		return me.user_db[dialog_obj.user].pin==pin;
     	}else{
     		return true;
@@ -322,39 +324,100 @@ module.exports = function(){
     	return true;
     };
 	me.handleHKKAZ = function(segment,ctrl,dialog_obj){
-		var bez = segment.nr;
-		ctrl.gmsg["0010"]=["0010","","Nachricht entgegengenommen."];
-		ctrl.msgs.push(Helper.newSegFromArrayWithBez('HIRMS', 2,bez,[["0020","","*Umsatzbereitstellung erfolgreich"]]));
-		var mt_490 = "";
-		mt_490	+=	"\r\n-\r\n";
-		mt_490	+=	":20:STARTUMS\r\n";
-		mt_490	+=	":25:12345678/0000000001\r\n";
-		mt_490	+=	":28C:0\r\n";
-		mt_490	+=	":60F:C150101EUR1041,23\r\n";
-		mt_490	+=	":61:150101C182,34NMSCNONREF\r\n";
-		mt_490	+=	":86:051?00UEBERWEISG?10931?20Ihre Kontonummer 0000001234\r\n";
-		mt_490	+=	"?21/Test Ueberweisung 1?22n WS EREF: 1100011011 IBAN:\r\n";
-		mt_490	+=	"?23 DE1100000100000001234 BIC?24: GENODE11 ?1011010100\r\n";
-		mt_490	+=	"?31?32Bank\r\n";
-		mt_490	+=	":62F:C150101EUR1223,57\r\n";
-		mt_490	+=	"-\r\n";
-		mt_490	+=	":20:STARTUMS\r\n";
-		mt_490	+=	":25:12345678/0000000001\r\n";
-		mt_490	+=	":28C:0\r\n";
-		mt_490	+=	":60F:C150301EUR1223,57\r\n";
-		mt_490	+=	":61:150301C100,03NMSCNONREF\r\n";
-		mt_490	+=	":86:051?00UEBERWEISG?10931?20Ihre Kontonummer 0000001234\r\n";
-		mt_490	+=	"?21/Test Ueberweisung 2?22n WS EREF: 1100011011 IBAN:\r\n";
-		mt_490	+=	"?23 DE1100000100000001234 BIC?24: GENODE11 ?1011010100\r\n";
-		mt_490	+=	"?31?32Bank\r\n";
-		mt_490	+=	":61:150301C100,00NMSCNONREF\r\n";
-		mt_490	+=	":86:051?00UEBERWEISG?10931?20Ihre Kontonummer 0000001234\r\n";
-		mt_490	+=	"?21/Test Ueberweisung 3?22n WS EREF: 1100011011 IBAN:\r\n";
-		mt_490	+=	"?23 DE1100000100000001234 BIC?24: GENODE11 ?1011010100\r\n";
-		mt_490	+=	"?31?32Bank\r\n";
-		mt_490	+=	":62F:C150101EUR1423,60\r\n";
-		mt_490	+=	"-\r\n";
-		ctrl.content.push(Helper.newSegFromArrayWithBez('HIKAZ',7,bez,[Helper.Byte(mt_490)]));
+		var atOnceMode = function(){
+			var bez = segment.nr;
+			ctrl.gmsg["0010"]=["0010","","Nachricht entgegengenommen."];
+			ctrl.msgs.push(Helper.newSegFromArrayWithBez('HIRMS', 2,bez,[["0020","","*Umsatzbereitstellung erfolgreich"]]));
+			var mt_490 = "";
+			mt_490	+=	"\r\n-\r\n";
+			mt_490	+=	":20:STARTUMS\r\n";
+			mt_490	+=	":25:12345678/0000000001\r\n";
+			mt_490	+=	":28C:0\r\n";
+			mt_490	+=	":60F:C150101EUR1041,23\r\n";
+			mt_490	+=	":61:150101C182,34NMSCNONREF\r\n";
+			mt_490	+=	":86:051?00UEBERWEISG?10931?20Ihre Kontonummer 0000001234\r\n";
+			mt_490	+=	"?21/Test Ueberweisung 1?22n WS EREF: 1100011011 IBAN:\r\n";
+			mt_490	+=	"?23 DE1100000100000001234 BIC?24: GENODE11 ?1011010100\r\n";
+			mt_490	+=	"?31?32Bank\r\n";
+			mt_490	+=	":62F:C150101EUR1223,57\r\n";
+			mt_490	+=	"-\r\n";
+			mt_490	+=	":20:STARTUMS\r\n";
+			mt_490	+=	":25:12345678/0000000001\r\n";
+			mt_490	+=	":28C:0\r\n";
+			mt_490	+=	":60F:C150301EUR1223,57\r\n";
+			mt_490	+=	":61:150301C100,03NMSCNONREF\r\n";
+			mt_490	+=	":86:051?00UEBERWEISG?10931?20Ihre Kontonummer 0000001234\r\n";
+			mt_490	+=	"?21/Test Ueberweisung 2?22n WS EREF: 1100011011 IBAN:\r\n";
+			mt_490	+=	"?23 DE1100000100000001234 BIC?24: GENODE11 ?1011010100\r\n";
+			mt_490	+=	"?31?32Bank\r\n";
+			mt_490	+=	":61:150301C100,00NMSCNONREF\r\n";
+			mt_490	+=	":86:051?00UEBERWEISG?10931?20Ihre Kontonummer 0000001234\r\n";
+			mt_490	+=	"?21/Test Ueberweisung 3?22n WS EREF: 1100011011 IBAN:\r\n";
+			mt_490	+=	"?23 DE1100000100000001234 BIC?24: GENODE11 ?1011010100\r\n";
+			mt_490	+=	"?31?32Bank\r\n";
+			mt_490	+=	":62F:C150101EUR1423,60\r\n";
+			mt_490	+=	"-\r\n";
+			ctrl.content.push(Helper.newSegFromArrayWithBez('HIKAZ',7,bez,[Helper.Byte(mt_490)]));
+		};
+		var first = function(){
+			var bez = segment.nr;
+			ctrl.gmsg["0010"]=["0010","","Nachricht entgegengenommen."];
+			ctrl.msgs.push(Helper.newSegFromArrayWithBez('HIRMS', 2,bez,[["3040","","Auftrag nur teilweise ausgefuhrt","my_cont_id"]]));
+			var mt_490 = "";
+			mt_490	+=	"\r\n-\r\n";
+			mt_490	+=	":20:STARTUMS\r\n";
+			mt_490	+=	":25:12345678/0000000001\r\n";
+			mt_490	+=	":28C:0\r\n";
+			mt_490	+=	":60F:C150101EUR1041,23\r\n";
+			mt_490	+=	":61:150101C182,34NMSCNONREF\r\n";
+			mt_490	+=	":86:051?00UEBERWEISG?10931?20Ihre Kontonummer 0000001234\r\n";
+			mt_490	+=	"?21/Test Ueberweisung 1?22n WS EREF: 1100011011 IBAN:\r\n";
+			mt_490	+=	"?23 DE1100000100000001234 BIC?24: GENODE11 ?1011010100\r\n";
+			mt_490	+=	"?31?32Bank\r\n";
+			mt_490	+=	":62F:C150101EUR1223,57\r\n";
+			mt_490	+=	"-\r\n";
+			mt_490	+=	":20:STARTUMS\r\n";
+			ctrl.content.push(Helper.newSegFromArrayWithBez('HIKAZ',7,bez,[Helper.Byte(mt_490)]));
+		};
+		var second = function(){
+			var bez = segment.nr;
+			ctrl.gmsg["0010"]=["0010","","Nachricht entgegengenommen."];
+			ctrl.msgs.push(Helper.newSegFromArrayWithBez('HIRMS', 2,bez,[["0020","","*Umsatzbereitstellung erfolgreich"]]));
+			var mt_490 = "";
+			mt_490	+=	":25:12345678/0000000001\r\n";
+			mt_490	+=	":28C:0\r\n";
+			mt_490	+=	":60F:C150301EUR1223,57\r\n";
+			mt_490	+=	":61:150301C100,03NMSCNONREF\r\n";
+			mt_490	+=	":86:051?00UEBERWEISG?10931?20Ihre Kontonummer 0000001234\r\n";
+			mt_490	+=	"?21/Test Ueberweisung 2?22n WS EREF: 1100011011 IBAN:\r\n";
+			mt_490	+=	"?23 DE1100000100000001234 BIC?24: GENODE11 ?1011010100\r\n";
+			mt_490	+=	"?31?32Bank\r\n";
+			mt_490	+=	":61:150301C100,00NMSCNONREF\r\n";
+			mt_490	+=	":86:051?00UEBERWEISG?10931?20Ihre Kontonummer 0000001234\r\n";
+			mt_490	+=	"?21/Test Ueberweisung 3?22n WS EREF: 1100011011 IBAN:\r\n";
+			mt_490	+=	"?23 DE1100000100000001234 BIC?24: GENODE11 ?1011010100\r\n";
+			mt_490	+=	"?31?32Bank\r\n";
+			mt_490	+=	":62F:C150101EUR1423,60\r\n";
+			mt_490	+=	"-\r\n";
+			ctrl.content.push(Helper.newSegFromArrayWithBez('HIKAZ',7,bez,[Helper.Byte(mt_490)]));
+		};
+		var hikas_2_mode = me.hikas_2_mode;
+		if(!hikas_2_mode){
+			atOnceMode();
+		}else{
+			var e = false;
+			if(segment.store.data.length>=6){
+				if(segment.getEl(6)=="my_cont_id"){
+					second();
+				}else{
+					var bez = segment.nr;
+					ctrl.gmsg["9050"]=["9050","","Teilweise fehlerhaft "];
+					ctrl.msgs.push(Helper.newSegFromArrayWithBez('HIRMS', 2,bez,[["9210","","Aufsetzpunkt unbekannt."]]));
+				}
+			}else{
+				first();
+			}
+		}
 		return true;
 	};
 };
