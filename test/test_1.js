@@ -25,6 +25,22 @@ var textBody = require("body");
 var FinTSServer = require("../dev/FinTSServer.js");
 var FinTSClient = require("../");
 var should = require('should');
+var config = null;
+try{
+	config = require("./credentials.js");
+}catch(e){
+
+}
+var bunyan = require("bunyan");
+var live   = require("bunyan-live-logger");
+var g_log = null;
+
+var logger = function(n){
+	if(g_log)
+		return g_log.child({testcase: n});
+	else
+		return null;
+};
 
 var mocha_catcher = function(done,cb){
 	return function(){
@@ -79,12 +95,27 @@ describe('testserver',function(){
 		  bankenliste['12345678'].url = "http://"+addr.address + ":" + addr.port+"/cgi-bin/hbciservlet";
 		  myFINTSServer.my_url  = bankenliste['12345678'].url;
 		  myFINTSServer.my_host = addr.address + ":" + addr.port;
-		  done();
+		  // Logger
+		  if(config&&config.bunyan_live_logger){
+			g_log = bunyan.createLogger({
+				  name: 'testcases - withtestserver',
+				  src:true,
+				  streams: [
+					{
+					  level: 'trace',
+					  stream: live({ready_cb:function(){done();}}),
+					  type:"raw"
+					}
+				  ]
+				});
+		 }else{
+			done();
+		 }
 		});;
 	});
 	
 	it('Test 1 - MsgInitDialog',function(done){
-		var client = new FinTSClient(12345678,"test1","1234",bankenliste);
+		var client = new FinTSClient(12345678,"test1","1234",bankenliste,logger("Test 1"));
 		var old_url = client.dest_url;
 		client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
 			if(error)
@@ -100,7 +131,7 @@ describe('testserver',function(){
 		}));
 	});
 	it('Test 2 - MsgInitDialog wrong user',function(done){
-		var client = new FinTSClient(12345678,"test2","1234",bankenliste);
+		var client = new FinTSClient(12345678,"test2","1234",bankenliste,logger("Test 2"));
 		var old_url = client.dest_url;
 		client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
 			if(error){
@@ -111,7 +142,7 @@ describe('testserver',function(){
 		}));
 	});
 	it('Test 3 - MsgInitDialog wrong pin',function(done){
-		var client = new FinTSClient(12345678,"test1","12341",bankenliste);
+		var client = new FinTSClient(12345678,"test1","12341",bankenliste,logger("Test 3"));
 		var old_url = client.dest_url;
 		client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
 			if(error){
@@ -122,7 +153,7 @@ describe('testserver',function(){
 		}));
 	});
 	it('Test 4 - MsgEndDialog',function(done){
-		var client = new FinTSClient(12345678,"test1","1234",bankenliste);
+		var client = new FinTSClient(12345678,"test1","1234",bankenliste,logger("Test 4"));
 		var old_url = client.dest_url;
 		client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
 			if(error){
@@ -137,7 +168,7 @@ describe('testserver',function(){
 		}));
 	});
 	it('Test 5 - MsgRequestSepa',function(done){
-		var client = new FinTSClient(12345678,"test1","1234",bankenliste);
+		var client = new FinTSClient(12345678,"test1","1234",bankenliste,logger("Test 5"));
 		client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
 			if(error){
 				throw error;
@@ -161,7 +192,7 @@ describe('testserver',function(){
 		}));
 	});
 	it('Test 5.1 - MsgRequestSepa - failed connection',function(done){
-		var client = new FinTSClient(12345678,"test1","1234",bankenliste);
+		var client = new FinTSClient(12345678,"test1","1234",bankenliste,logger("Test 5.1"));
 		client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
 			if(error){
 				throw error;
@@ -183,7 +214,7 @@ describe('testserver',function(){
 		}));
 	});
 	it('Test 6 - EstablishConnection',function(done){
-		var client = new FinTSClient(12345678,"test1","1234",bankenliste);
+		var client = new FinTSClient(12345678,"test1","1234",bankenliste,logger("Test 6"));
 		client.EstablishConnection(mocha_catcher(done,function(error){
 			if(error){
 				throw error;
@@ -202,7 +233,7 @@ describe('testserver',function(){
 		}));
 	});
 	it('Test 7 - MsgGetKontoUmsaetze',function(done){
-			var client = new FinTSClient(12345678,"test1","1234",bankenliste);
+			var client = new FinTSClient(12345678,"test1","1234",bankenliste,logger("Test 7"));
 			client.EstablishConnection(mocha_catcher(done,function(error){
 				if(error){
 					throw error;
@@ -231,7 +262,7 @@ describe('testserver',function(){
 			myFINTSServer.hikas_2_mode = true;
 		  });
 		it('Test 7.1 - MsgGetKontoUmsaetze - mit Aufsetzpunkt',function(done){
-			var client = new FinTSClient(12345678,"test1","1234",bankenliste);
+			var client = new FinTSClient(12345678,"test1","1234",bankenliste,logger("Test 7.1"));
 			client.EstablishConnection(mocha_catcher(done,function(error){
 				if(error){
 					throw error;
@@ -260,7 +291,7 @@ describe('testserver',function(){
 		});
 	});
 	it('Test 8 - MsgGetSaldo',function(done){
-		var client = new FinTSClient(12345678,"test1","1234",bankenliste);
+		var client = new FinTSClient(12345678,"test1","1234",bankenliste,logger("Test 8"));
 		client.EstablishConnection(mocha_catcher(done,function(error){
 				if(error){
 					throw error;
