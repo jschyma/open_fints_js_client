@@ -96,7 +96,7 @@ describe('tests_real',function(){
 	
 	it('Test 1 - MsgInitDialog',function(done){
 		checkPreviousTests();
-		var client = new FinTSClient(credentials.blz,credentials.user,credentials.pin,credentials.bankenliste);
+		var client = new FinTSClient(credentials.blz,credentials.user,credentials.pin,credentials.bankenliste,logger("Test 1"));
 		var old_url = client.dest_url;
 		client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
 			if(error)
@@ -115,7 +115,7 @@ describe('tests_real',function(){
 	});
 	it('Test 2 - MsgInitDialog wrong user',function(done){
 		checkPreviousTests();
-		var client = new FinTSClient(credentials.blz,"wrong","12345",credentials.bankenliste);
+		var client = new FinTSClient(credentials.blz,"wrong","12345",credentials.bankenliste,logger("Test 2"));
 		var old_url = client.dest_url;
 		client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
 			client.MsgEndDialog(function(error,recvMsg2){	});
@@ -132,7 +132,7 @@ describe('tests_real',function(){
 		after(function(done){
 			if(test_performed){
 				// login with good pin to reset bad counter
-				var client = new FinTSClient(credentials.blz,credentials.user,credentials.pin,credentials.bankenliste);
+				var client = new FinTSClient(credentials.blz,credentials.user,credentials.pin,credentials.bankenliste,logger("wrong_pin_test after"));
 				var old_url = client.dest_url;
 				client.MsgInitDialog(function(error,recvMsg,has_neu_url){
 					if(error)
@@ -150,7 +150,7 @@ describe('tests_real',function(){
 		it('Test 3 - MsgInitDialog wrong pin',function(done){
 			checkPreviousTests();
 			test_performed = true;
-			var client = new FinTSClient(credentials.blz,credentials.user,"12345",credentials.bankenliste);
+			var client = new FinTSClient(credentials.blz,credentials.user,"12345",credentials.bankenliste,logger("Test 3"));
 			var old_url = client.dest_url;
 			client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
 				client.MsgEndDialog(function(error2,recvMsg2){	});
@@ -162,7 +162,7 @@ describe('tests_real',function(){
 	});
 	it('Test 6 - EstablishConnection',function(done){
 		checkPreviousTests();
-		var client = new FinTSClient(credentials.blz,credentials.user,credentials.pin,credentials.bankenliste);
+		var client = new FinTSClient(credentials.blz,credentials.user,credentials.pin,credentials.bankenliste,logger("Test 6"));
 		client.EstablishConnection(mocha_catcher(done,function(error){
 			if(error){
 				throw error;
@@ -178,7 +178,7 @@ describe('tests_real',function(){
 	});
 	it('Test 7 - MsgGetKontoUmsaetze',function(done){
 		checkPreviousTests();
-		var client = new FinTSClient(credentials.blz,credentials.user,credentials.pin,credentials.bankenliste);
+		var client = new FinTSClient(credentials.blz,credentials.user,credentials.pin,credentials.bankenliste,logger("Test 7"));
 		client.EstablishConnection(mocha_catcher(done,function(error){
 				if(error){
 					throw error;
@@ -206,7 +206,7 @@ describe('tests_real',function(){
 	});
 	it('Test 8 - MsgGetSaldo',function(done){
 		checkPreviousTests();
-		var client = new FinTSClient(credentials.blz,credentials.user,credentials.pin,credentials.bankenliste);
+		var client = new FinTSClient(credentials.blz,credentials.user,credentials.pin,credentials.bankenliste,logger("Test 8"));
 		client.EstablishConnection(mocha_catcher(done,function(error){
 				if(error){
 					throw error;
