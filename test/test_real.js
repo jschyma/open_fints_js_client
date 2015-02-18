@@ -42,6 +42,17 @@ var mocha_catcher = function(done,cb){
 	};
 };
 
+var bunyan = require("bunyan");
+var live   = require("bunyan-live-logger");
+var g_log = null;
+
+var logger = function(n){
+	if(g_log)
+		return g_log.child({testcase: n});
+	else
+		return null;
+};
+
 describe('tests_real',function(){
 	this.timeout(20*60*1000);
 	var myFINTSServer = null;
@@ -56,7 +67,8 @@ describe('tests_real',function(){
 			},
 			blz:12345678,
 			user:"",
-			pin:""
+			pin:"",
+			bunyan_live_logger:true
 		};
 		*/
 		credentials.should.have.property("bankenliste");
@@ -65,7 +77,21 @@ describe('tests_real',function(){
 		credentials.should.have.property("blz");
 		should(credentials.user).not.equal("");
 		should(credentials.pin).not.equal("");
-		done();
+		if(credentials&&credentials.bunyan_live_logger){
+			g_log = bunyan.createLogger({
+				  name: 'testcases - tests_real',
+				  src:true,
+				  streams: [
+					{
+					  level: 'trace',
+					  stream: live({ready_cb:function(){done();}}),
+					  type:"raw"
+					}
+				  ]
+				});
+		 }else{
+			done();
+		 }
 	});
 	
 	it('Test 1 - MsgInitDialog',function(done){

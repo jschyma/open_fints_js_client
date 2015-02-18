@@ -1,9 +1,9 @@
 [![NPM Version][npm-image]][npm-url]
-#Open-Fin-TS-JS-Client
+# Open-Fin-TS-JS-Client
 
 FinTS/HBCI ist eine standardisierte Schnittstelle zur Kommunikation mit Banken von der Deutschen Kreditwirtschaft (DK).
 Es existieren derzeit drei Versionen der Schnittstelle.
-  * HBCI 2.2											--> keine Unterstützung
+  * HBCI 2.2											--> keine Unterstützung (geplant)
   * FinTS 3.0	(noch weites gehend auf HBCI basierend) --> Diese API unterstützt diese Version.
   * FinTS 4.1	(neuste auf XML basierend)				--> keine Unterstützung (noch keine große Verbreitung)
 
@@ -12,11 +12,12 @@ Der Open-Fin-TS-JS-Client unterstützt zurzeit nur die Version FinTS 3.0 mit der
 Es existieren nur wenige Implementierungen für HBCI bzw. FinTS.
 Zurzeit (2015) nur eine für Javascript, diese ist allerdings kommerziell. Dieses Projekt versucht diese Lücke zu schließen.
 
-###Unterstützte Geschäftsvorfälle
+### Unterstützte Geschäftsvorfälle
   * SEPA Kontoinformationen laden (HKSPA)
   * Kontoumsätze laden (HKKAZ)
+  * Salden laden (HKSAL)
 
-###Unterstützte Plattformen
+### Unterstützte Plattformen
   * Node-JS
   * Browserfy (In Arbeit) - allerdings ist hier ein Umweg notwendig wegen der Cross-origin resource sharing Problematik in normalen Browsern
   * weitere Plattformen mit Anpassungen denkbar
@@ -252,7 +253,20 @@ Um die Tests zu starten im Verzeichnis des Projekts folgenden Befehl in der Kons
 ```shell
 npm test
 ```
-Für die Tests wird der interne FinTS Server verwendet.
+Für die Tests wird der interne FinTS Server verwendet und die in der Datei credentials.js konfigurierten FinTS Real Server.
+credentials.js
+```js
+	module.exports = {
+		bankenliste:{
+			'12345678':{'blz':12345678,'url':"http://localhost:3000/cgi-bin/hbciservlet"},
+			"undefined":{'url':""}
+		},
+		blz:12345678,
+		user:"maxmuster",
+		pin:"12345",
+		bunyan_live_logger:true
+	};
+```
 
 Um ein Code-Coverage Test durchzuführen folgenden Befehl im Paket eingeben.
 ```shell
@@ -279,6 +293,8 @@ Für eine bessere Darstellung empfiehlt sich Bunyan CLI.
 ```shell
 node examples/zeige_kontoumsaetze.js log | bunyan -l trace
 ```
+Alternativ können mit dem Bunyan Live Logger die Logs live dargestellt werden. Für die TestCases kann durch credentials.js und dem Attribut bunyan_live_logger:true der Live Logger direkt gestartet werden.
+
 
 ## Links
 
