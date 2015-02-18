@@ -92,22 +92,22 @@ module.exports = function(){
 					   recvMsg.segments[i].name=="HNSHK"){
 					   	// nichts tun
 					}else if(recvMsg.segments[i].name=="HKIDN"){
-						if(!me.handleHKIDN(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKIDN(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}else if(recvMsg.segments[i].name=="HKVVB"){
-						if(!me.handleHKVVB(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKVVB(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}else if(recvMsg.segments[i].name=="HKSYN"){
-						if(!me.handleHKSYN(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKSYN(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}else if(recvMsg.segments[i].name=="HKEND"){
-						if(!me.handleHKEND(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKEND(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}else if(recvMsg.segments[i].name=="HKSPA"){
-						if(!me.handleHKSPA(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKSPA(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}else if(recvMsg.segments[i].name=="HKKAZ"){
-						if(!me.handleHKKAZ(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKKAZ(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}
 				}
@@ -156,7 +156,9 @@ module.exports = function(){
     	if(recvMsg.isSigned()){
     		var HNSHK = recvMsg.selectSegByName("HNSHK")[0];
     		var HNSHA = recvMsg.selectSegByName("HNSHA")[0];
-    		if(HNSHK.getEl(1).getEl(1)!="PIN")
+    		if((HNSHK.vers=="4"&&HNSHK.getEl(1).getEl(1)=="PIN")||HNSHK.vers=="3"){
+			
+			}else
     			return false;// andere als PIN unterstützen wir nicht
     		var pin = "";
     		try{pin=HNSHA.getEl(3).getEl(1);}catch(e){pin=HNSHA.getEl(3);}
@@ -167,7 +169,7 @@ module.exports = function(){
     };
     
     me.createSendMsg = function(recvMsg,dialog_obj){
-    	var sendMsg = new Nachricht();
+    	var sendMsg = new Nachricht(me.proto_version);
     	if(recvMsg.isSigned())sendMsg.sign({'pin':"",'tan':null,'sys_id':dialog_obj.user_sys_id,'server':true,'pin_vers':'999','sig_id':0});
     	var nachrichten_nr = recvMsg.selectSegByName("HNHBK")[0].getEl(4);
     	sendMsg.init(dialog_obj.dialog_nr, nachrichten_nr ,me.my_blz,dialog_obj.user);
@@ -179,6 +181,21 @@ module.exports = function(){
     };
     
     me.handleDialogInit = function(recvMsg){
+		// HBCI 2.2 check
+		if(me.proto_version==220&&recvMsg.selectSegByName("HNHBK")[0].getEl(2)=="300"){
+			// error
+			var sendMsg2 = new Nachricht(me.proto_version);
+			var nachrichten_nr = recvMsg.selectSegByName("HNHBK")[0].getEl(4);
+			sendMsg2.init("2352638484028120", nachrichten_nr);
+			var bezugs_deg = new DatenElementGruppe();
+			bezugs_deg.addDE("2352638484028120");
+			bezugs_deg.addDE(nachrichten_nr);
+			sendMsg2.selectSegByName("HNHBK")[0].store.addDEG(bezugs_deg);
+			sendMsg2.addSeg(Helper.newSegFromArray('HIRMG', 2,[["9010",NULL,"Nachricht ist komplett nicht bearbeitet (HBMSG=10319)"],["9800",NULL,"Dialog abgebrochen (HBMSG=10321)"]]));
+			sendMsg2.addSeg(Helper.newSegFromArrayWithBez('HIRMS', 2,1,[["9120","3","Nicht erwartet (HBMSG=10515)"]]));
+			sendMsg2.addSeg(Helper.newSegFromArrayWithBez('HIRMS', 2,2,[["9110",NULL,"Unbekannter Aufbau (HBMSG=10000)"]]));
+			return {"e":true,"msg":sendMsg2};
+		}
     	// Dialog Initialisierung
     	var dialog_nr = "DIA_"+(me.next_dialog_nr++);
     	me.dialog_array[dialog_nr]={
@@ -236,9 +253,15 @@ module.exports = function(){
     	ctrl.gmsg["3060"]=["3060","","Bitte beachten Sie die enthaltenen Warnungen/Hinweise"];
     	var msg_array = [];
 		if(bpd_vers!="78"){
-			ctrl.content.push(Helper.newSegFromArrayWithBez('HIBPA', 3,bez,["78",["280",me.my_blz],"FinTSJSClient Test Bank","1","1","300","500"]));
-			ctrl.content.push(Helper.newSegFromArrayWithBez('HIKOM', 4,bez,[["280",me.my_blz],"1",["3",Helper.convertJSTextTo(me.my_url)],["2",Helper.convertJSTextTo(me.my_host)]]));
-			ctrl.content.push(Helper.newSegFromArrayWithBez('HISHV' , 3,bez,["J",["RDH","3"],["PIN","1"],["RDH","9"],["RDH","10"],["RDH","7"]]));
+			if(me.proto_version==300){
+				ctrl.content.push(Helper.newSegFromArrayWithBez('HIBPA', 3,bez,["78",["280",me.my_blz],"FinTSJSClient Test Bank","1","1","300","500"]));
+				ctrl.content.push(Helper.newSegFromArrayWithBez('HIKOM', 4,bez,[["280",me.my_blz],"1",["3",Helper.convertJSTextTo(me.my_url)],["2",Helper.convertJSTextTo(me.my_host)]]));
+				ctrl.content.push(Helper.newSegFromArrayWithBez('HISHV' , 3,bez,["J",["RDH","3"],["PIN","1"],["RDH","9"],["RDH","10"],["RDH","7"]]));
+			}else{
+				ctrl.content.push(Helper.newSegFromArrayWithBez('HIBPA', 2,bez,["78",["280",me.my_blz],"FinTSJSClient Test Bank","3","1",[201:210:220],"0"]));
+				ctrl.content.push(Helper.newSegFromArrayWithBez('HIKOM', 3,bez,[["280",me.my_blz],"1",["2",Helper.convertJSTextTo(me.my_url),NULL,"MIM",1]]));
+				ctrl.content.push(Helper.newSegFromArrayWithBez('HISHV' , 2,bez,["N",["DDV","1"],]));
+			}
 			ctrl.content.push(Helper.newSegFromArrayWithBez('HIEKAS', 5,bez,["1","1","1",["J","J","N","3"]]));
 			ctrl.content.push(Helper.newSegFromArrayWithBez('HIKAZS', 4,bez,["1","1",["365","J"]]));
 			ctrl.content.push(Helper.newSegFromArrayWithBez('HIKAZS', 5,bez,["1","1",["365","J","N"]]));

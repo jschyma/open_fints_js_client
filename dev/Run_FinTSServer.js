@@ -22,7 +22,6 @@ var express = require('express');
 var http = require('http');
 var textBody = require("body");
 var FinTSServer = require("./FinTSServer.js");
-var FinTSServer22 = require("./FinTSServer22.js");
 var https = require("https");
 var url = require("url");
 var fs = require('fs');
@@ -31,7 +30,8 @@ var ipaddr  = process.env.IP || "127.0.0.1";//process.env.IP;
 var port      = process.env.PORT || 3000;//process.env.PORT;
 var app = express();
 var myFINTSServer = new FinTSServer();
-var myFINTSServer22 = new FinTSServer22();
+var myFINTSServer22 = new FinTSServer();
+myFINTSServer22.proto_version = 220;
 app.configure(function () {
 	app.get("/",function(req, res){
 		res.setHeader('Content-Type', 'text/html');
