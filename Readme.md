@@ -3,7 +3,7 @@
 
 FinTS/HBCI ist eine standardisierte Schnittstelle zur Kommunikation mit Banken von der Deutschen Kreditwirtschaft (DK).
 Es existieren derzeit drei Versionen der Schnittstelle.
-  * HBCI 2.2											--> keine Unterstützung (geplant)
+  * HBCI 2.2 bzw. HBCI+									--> Diese API unterstützt diese Version.
   * FinTS 3.0	(noch weites gehend auf HBCI basierend) --> Diese API unterstützt diese Version.
   * FinTS 4.1	(neuste auf XML basierend)				--> keine Unterstützung (noch keine große Verbreitung)
 
@@ -16,6 +16,8 @@ Zurzeit (2015) nur eine für Javascript, diese ist allerdings kommerziell. Diese
   * SEPA Kontoinformationen laden (HKSPA)
   * Kontoumsätze laden (HKKAZ)
   * Salden laden (HKSAL)
+  * SEPA Einzelüberweisung (HKCCS) - geplant
+  * Kontoumsätze im Format camt anfordern (HKCAZ) - geplant
 
 ### Unterstützte Plattformen
   * Node-JS
@@ -238,6 +240,24 @@ client.EstablishConnection(function(error){
 																	}
 																]
 															}]
+		MsgGetSaldo(konto,cb)			-Lädt den Saldo eines bestimmten Kontos
+			konto											- Das Konto für das der Saldo geladen werden sollen
+			callback  (function(error,recvMsg,saldo))		- error == null kein Fehler
+																-saldo
+																{"desc":"Normalsparen",
+																 "cur":"EUR",
+																 "saldo":{	"soll_haben":"H",		// SALDO OBJECT
+																			"buchungsdatum":Date,
+																			"currency":"EUR",
+																			"value":5},
+																 "saldo_vorgemerkt":null,			// SALDO OBJECT
+																 "credit_line":{ 	"currency":"EUR",
+																					"value":5},		// BETRAG OBJECT
+																 "avail_amount":null,				// BETRAG OBJECT
+																 "used_amount":null,				// BETRAG OBJECT
+																 "overdraft":null,					// BETRAG OBJECT
+																 "booking_date":Date,
+																 "faelligkeit_date":Date}
 		closeSecure ()			-	Stellt sicher, dass keine Sensiblen Informationen wie die PIN noch im RAM sind, sollte am Ende immer gerufen werden
 ```
 ## Entwickler-Tools

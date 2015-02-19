@@ -30,6 +30,8 @@ var ipaddr  = process.env.IP || "127.0.0.1";//process.env.IP;
 var port      = process.env.PORT || 3000;//process.env.PORT;
 var app = express();
 var myFINTSServer = new FinTSServer();
+var myFINTSServer22 = new FinTSServer();
+myFINTSServer22.proto_version = 220;
 app.configure(function () {
 	app.get("/",function(req, res){
 		res.setHeader('Content-Type', 'text/html');
@@ -48,6 +50,17 @@ app.configure(function () {
 		});
 		
 	});
+	app.post("/cgi-bin/hbciservlet22",function(req, res){
+		textBody(req, res, function (err, body) {
+			// err probably means invalid HTTP protocol or some shiz.
+			if (err) {
+				res.statusCode = 500;
+				return res.end("NO U");
+			}
+			res.setHeader('Content-Type', 'text/plain');
+			res.send(myFINTSServer.handleIncomeMessage(body));
+		});
+		
 	app.post("/cgi-bin/hbciservlet_proxy",function(req2, res2){
 		textBody(req2, res2, function (err, body) {
 			// err probably means invalid HTTP protocol or some shiz.

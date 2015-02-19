@@ -38,6 +38,7 @@ module.exports = function(){
 	me.my_url		= "http://localhost:3000/cgi-bin/hbciservlet";
 	me.my_host		= "localhost:3000";
 	me.my_debug_log = true;
+	me.proto_version = 300;
 	me.hikas_2_mode = false;
     
     me.handleIncomeMessage = function(txt){
@@ -48,7 +49,7 @@ module.exports = function(){
 		fs.appendFileSync("log_send_msg.txt","Neue Msg Nr: "+me.dbg_log_nr+"\n\r"+s+"\n\r\n\r");
 		me.dbg_log_nr++;
 		// End Debug
-		var recvMsg = new Nachricht();
+		var recvMsg = new Nachricht(me.proto_version);
 		try{
 			recvMsg.parse(s);
 			var sendtxt = null;
@@ -91,22 +92,25 @@ module.exports = function(){
 					   recvMsg.segments[i].name=="HNSHK"){
 					   	// nichts tun
 					}else if(recvMsg.segments[i].name=="HKIDN"){
-						if(!me.handleHKIDN(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKIDN(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}else if(recvMsg.segments[i].name=="HKVVB"){
-						if(!me.handleHKVVB(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKVVB(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}else if(recvMsg.segments[i].name=="HKSYN"){
-						if(!me.handleHKSYN(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKSYN(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}else if(recvMsg.segments[i].name=="HKEND"){
-						if(!me.handleHKEND(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKEND(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}else if(recvMsg.segments[i].name=="HKSPA"){
-						if(!me.handleHKSPA(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKSPA(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}else if(recvMsg.segments[i].name=="HKKAZ"){
-						if(!me.handleHKKAZ(recvMsg.segments[i],ctrl,dialog_obj))
+						if(!me.handleHKKAZ(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
+							break;
+					}else if(recvMsg.segments[i].name=="HKSAL"){
+						if(!me.handleHKSAL(recvMsg.segments[i],ctrl,dialog_obj,recvMsg))
 							break;
 					}
 				}
@@ -155,7 +159,9 @@ module.exports = function(){
     	if(recvMsg.isSigned()){
     		var HNSHK = recvMsg.selectSegByName("HNSHK")[0];
     		var HNSHA = recvMsg.selectSegByName("HNSHA")[0];
-    		if(HNSHK.getEl(1).getEl(1)!="PIN")
+    		if((HNSHK.vers=="4"&&HNSHK.getEl(1).getEl(1)=="PIN")||HNSHK.vers=="3"){
+			
+			}else
     			return false;// andere als PIN unterstützen wir nicht
     		var pin = "";
     		try{pin=HNSHA.getEl(3).getEl(1);}catch(e){pin=HNSHA.getEl(3);}
@@ -166,7 +172,7 @@ module.exports = function(){
     };
     
     me.createSendMsg = function(recvMsg,dialog_obj){
-    	var sendMsg = new Nachricht();
+    	var sendMsg = new Nachricht(me.proto_version);
     	if(recvMsg.isSigned())sendMsg.sign({'pin':"",'tan':null,'sys_id':dialog_obj.user_sys_id,'server':true,'pin_vers':'999','sig_id':0});
     	var nachrichten_nr = recvMsg.selectSegByName("HNHBK")[0].getEl(4);
     	sendMsg.init(dialog_obj.dialog_nr, nachrichten_nr ,me.my_blz,dialog_obj.user);
@@ -178,6 +184,21 @@ module.exports = function(){
     };
     
     me.handleDialogInit = function(recvMsg){
+		// HBCI 2.2 check
+		if(me.proto_version==220&&recvMsg.selectSegByName("HNHBK")[0].getEl(2)=="300"){
+			// error
+			var sendMsg2 = new Nachricht(me.proto_version);
+			var nachrichten_nr = recvMsg.selectSegByName("HNHBK")[0].getEl(4);
+			sendMsg2.init("2352638484028120", nachrichten_nr);
+			var bezugs_deg = new DatenElementGruppe();
+			bezugs_deg.addDE("2352638484028120");
+			bezugs_deg.addDE(nachrichten_nr);
+			sendMsg2.selectSegByName("HNHBK")[0].store.addDEG(bezugs_deg);
+			sendMsg2.addSeg(Helper.newSegFromArray('HIRMG', 2,[["9010",NULL,"Nachricht ist komplett nicht bearbeitet (HBMSG=10319)"],["9800",NULL,"Dialog abgebrochen (HBMSG=10321)"]]));
+			sendMsg2.addSeg(Helper.newSegFromArrayWithBez('HIRMS', 2,1,[["9120","3","Nicht erwartet (HBMSG=10515)"]]));
+			sendMsg2.addSeg(Helper.newSegFromArrayWithBez('HIRMS', 2,2,[["9110",NULL,"Unbekannter Aufbau (HBMSG=10000)"]]));
+			return {"e":true,"msg":sendMsg2};
+		}
     	// Dialog Initialisierung
     	var dialog_nr = "DIA_"+(me.next_dialog_nr++);
     	me.dialog_array[dialog_nr]={
@@ -235,9 +256,15 @@ module.exports = function(){
     	ctrl.gmsg["3060"]=["3060","","Bitte beachten Sie die enthaltenen Warnungen/Hinweise"];
     	var msg_array = [];
 		if(bpd_vers!="78"){
-			ctrl.content.push(Helper.newSegFromArrayWithBez('HIBPA', 3,bez,["78",["280",me.my_blz],"FinTSJSClient Test Bank","1","1","300","500"]));
-			ctrl.content.push(Helper.newSegFromArrayWithBez('HIKOM', 4,bez,[["280",me.my_blz],"1",["3",Helper.convertJSTextTo(me.my_url)],["2",Helper.convertJSTextTo(me.my_host)]]));
-			ctrl.content.push(Helper.newSegFromArrayWithBez('HISHV' , 3,bez,["J",["RDH","3"],["PIN","1"],["RDH","9"],["RDH","10"],["RDH","7"]]));
+			if(me.proto_version==300){
+				ctrl.content.push(Helper.newSegFromArrayWithBez('HIBPA', 3,bez,["78",["280",me.my_blz],"FinTSJSClient Test Bank","1","1","300","500"]));
+				ctrl.content.push(Helper.newSegFromArrayWithBez('HIKOM', 4,bez,[["280",me.my_blz],"1",["3",Helper.convertJSTextTo(me.my_url)],["2",Helper.convertJSTextTo(me.my_host)]]));
+				ctrl.content.push(Helper.newSegFromArrayWithBez('HISHV' , 3,bez,["J",["RDH","3"],["PIN","1"],["RDH","9"],["RDH","10"],["RDH","7"]]));
+			}else{
+				ctrl.content.push(Helper.newSegFromArrayWithBez('HIBPA', 2,bez,["78",["280",me.my_blz],"FinTSJSClient Test Bank","3","1",[201,210,220],"0"]));
+				ctrl.content.push(Helper.newSegFromArrayWithBez('HIKOM', 3,bez,[["280",me.my_blz],"1",["2",Helper.convertJSTextTo(me.my_url),NULL,"MIM",1]]));
+				ctrl.content.push(Helper.newSegFromArrayWithBez('HISHV' , 2,bez,["N",["DDV","1"],]));
+			}
 			ctrl.content.push(Helper.newSegFromArrayWithBez('HIEKAS', 5,bez,["1","1","1",["J","J","N","3"]]));
 			ctrl.content.push(Helper.newSegFromArrayWithBez('HIKAZS', 4,bez,["1","1",["365","J"]]));
 			ctrl.content.push(Helper.newSegFromArrayWithBez('HIKAZS', 5,bez,["1","1",["365","J","N"]]));
@@ -248,7 +275,7 @@ module.exports = function(){
 			ctrl.content.push(Helper.newSegFromArrayWithBez('HIPROS', 3,bez,["1","1"]));
 			ctrl.content.push(Helper.newSegFromArrayWithBez('HIPSPS', 1,bez,["1","1","1"]));
 			ctrl.content.push(Helper.newSegFromArrayWithBez('HIQTGS', 1,bez,["1","1","1"]));
-			ctrl.content.push(Helper.newSegFromArrayWithBez('HISALS', 4,bez,["1","1"]));
+			ctrl.content.push(Helper.newSegFromArrayWithBez('HISALS', 5,bez,["3","1"]));
 			ctrl.content.push(Helper.newSegFromArrayWithBez('HISALS', 7,bez,["1","1","1"]));
 			ctrl.content.push(Helper.newSegFromArrayWithBez('HISLAS', 4,bez,["1","1",["500","14","04","05"]]));
 			ctrl.content.push(Helper.newSegFromArrayWithBez('HICSBS', 1,bez,["1","1","1",["N","N"]]));
@@ -283,7 +310,8 @@ module.exports = function(){
 			ctrl.content.push(Helper.newSegFromArrayWithBez('GIVPUS', 1,bez,["1","1","1","N"]));
 			ctrl.content.push(Helper.newSegFromArrayWithBez('GIVPDS', 1,bez,["1","1","1","1"]));
 			ctrl.content.push(Helper.newSegFromArrayWithBez('HITANS', 5,bez,["1","1","1",["J","N","0","942","2","MTAN2","mobileTAN","","mobile TAN","6","1","SMS","2048","1","J","1","0","N","0","2","N","J","00","1","1","962","2","HHD1.4","HHD","1.4","Smart-TAN plus manuell","6","1","Challenge","2048","1","J","1","0","N","0","2","N","J","00","1","1","972","2","HHD1.4OPT","HHDOPT1","1.4","Smart-TAN plus optisch","6","1","Challenge","2048","1","J","1","0","N","0","2","N","J","00","1","1"]]));
-			ctrl.content.push(Helper.newSegFromArrayWithBez('HIPINS', 1,bez,["1","1","1",["5","20","6","Benutzer ID","","HKSPA","N","HKKAZ","N","HKKAZ","N","HKSAL","N","HKSLA","J","HKSUB","J","HKTUA","J","HKTUB","N","HKTUE","J","HKTUL","J","HKUEB","J","HKUMB","J","HKPRO","N","HKEKA","N","HKKAZ","N","HKKAZ","N","HKPPD","J","HKPAE","J","HKPSP","N","HKQTG","N","HKSAL","N","HKCSB","N","HKCSL","J","HKCSE","J","HKCCS","J","HKCCM","J","HKDSE","J","HKBSE","J","HKDME","J","HKBME","J","HKCDB","N","HKCDL","J","HKPPD","J","HKCDN","J","HKDSB","N","HKCUB","N","HKCUM","J","HKCDE","J","HKDSW","J","HKDMC","J","HKDSC","J","HKECA","N","GKVPU","N","GKVPD","N","HKTAN","N","HKTAN","N"]]));
+			if(me.proto_version==300)	ctrl.content.push(Helper.newSegFromArrayWithBez('HIPINS', 1,bez,["1","1","1",["5","20","6","Benutzer ID","","HKSPA","N","HKKAZ","N","HKKAZ","N","HKSAL","N","HKSLA","J","HKSUB","J","HKTUA","J","HKTUB","N","HKTUE","J","HKTUL","J","HKUEB","J","HKUMB","J","HKPRO","N","HKEKA","N","HKKAZ","N","HKKAZ","N","HKPPD","J","HKPAE","J","HKPSP","N","HKQTG","N","HKSAL","N","HKCSB","N","HKCSL","J","HKCSE","J","HKCCS","J","HKCCM","J","HKDSE","J","HKBSE","J","HKDME","J","HKBME","J","HKCDB","N","HKCDL","J","HKPPD","J","HKCDN","J","HKDSB","N","HKCUB","N","HKCUM","J","HKCDE","J","HKDSW","J","HKDMC","J","HKDSC","J","HKECA","N","GKVPU","N","GKVPD","N","HKTAN","N","HKTAN","N"]]));
+			else						ctrl.content.push(Helper.newSegFromArrayWithBez('DIPINS', 1,bez,["1","1",["HKSPA","N","HKKAZ","N","HKKAZ","N","HKSAL","N","HKSLA","J","HKSUB","J","HKTUA","J","HKTUB","N","HKTUE","J","HKTUL","J","HKUEB","J","HKUMB","J","HKPRO","N","HKEKA","N","HKKAZ","N","HKKAZ","N","HKPPD","J","HKPAE","J","HKPSP","N","HKQTG","N","HKSAL","N","HKCSB","N","HKCSL","J","HKCSE","J","HKCCS","J","HKCCM","J","HKDSE","J","HKBSE","J","HKDME","J","HKBME","J","HKCDB","N","HKCDL","J","HKPPD","J","HKCDN","J","HKDSB","N","HKCUB","N","HKCUM","J","HKCDE","J","HKDSW","J","HKDMC","J","HKDSC","J","HKECA","N","GKVPU","N","GKVPD","N","HKTAN","N","HKTAN","N"]]));
 			ctrl.content.push(Helper.newSegFromArrayWithBez('HIAZSS', 1,bez,["1","1","1",["1","N","","","","","","","","","","","HKTUA;2;0;1;811","HKDSC;1;0;1;811","HKPPD;2;0;1;811","HKDSE;1;0;1;811","HKSLA;4;0;1;811","HKTUE;2;0;1;811","HKSUB;4;0;1;811","HKCDL;1;0;1;811","HKCDB;1;0;1;811","HKKAZ;6;0;1;811","HKCSE;1;0;1;811","HKSAL;4;0;1;811","HKQTG;1;0;1;811","GKVPU;1;0;1;811","HKUMB;1;0;1;811","HKECA;1;0;1;811","HKDMC;1;0;1;811","HKDME;1;0;1;811","HKSAL;7;0;1;811","HKSPA;1;0;1;811","HKEKA;5;0;1;811","HKKAZ;4;0;1;811","HKPSP;1;0;1;811","HKKAZ;5;0;1;811","HKCSL;1;0;1;811","HKCDN;1;0;1;811","HKTUL;1;0;1;811","HKPPD;1;0;1;811","HKPAE;1;0;1;811","HKCCM;1;0;1;811","HKIDN;2;0;1;811","HKDSW;1;0;1;811","HKCUM;1;0;1;811","HKPRO;3;0;1;811","GKVPD;1;0;1;811","HKCDE;1;0;1;811","HKBSE;1;0;1;811","HKCSB;1;0;1;811","HKCCS;1;0;1;811","HKDSB;1;0;1;811","HKBME;1;0;1;811","HKCUB;1;0;1;811","HKUEB;3;0;1;811","HKTUB;1;0;1;811","HKKAZ;7;0;1;811"]]));
 			ctrl.content.push(Helper.newSegFromArrayWithBez('HIVISS', 1,bez,["1","1","1",["1;;;;"]]));
 		
@@ -304,8 +332,7 @@ module.exports = function(){
     me.handleHKSYN = function(segment,ctrl,dialog_obj){
     	var bez = segment.nr;
     	ctrl.msgs.push(Helper.newSegFromArrayWithBez('HIRMS', 2,bez,[["0020","","Auftrag ausgefuhrt."]]));
-    	ctrl.content.push(Helper.newSegFromArrayWithBez('HISYN', 4,bez,["DDDA10000000000000000000000A"]));
-   
+    	ctrl.content.push(Helper.newSegFromArrayWithBez('HISYN', segment.vers=="2"?3:4,bez,["DDDA10000000000000000000000A"]));
     	return true;
     };
     
@@ -419,4 +446,16 @@ module.exports = function(){
 		}
 		return true;
 	};
+	me.handleHKSAL = function(segment,ctrl,dialog_obj){
+    	var bez = segment.nr;
+    	ctrl.gmsg["0010"]=["0010","","Nachricht entgegengenommen."];
+    	ctrl.msgs.push(Helper.newSegFromArrayWithBez('HIRMS', 2,bez,[["0020","","Auftrag ausgefuehrt"]]));
+		if(segment.vers=="5")
+			ctrl.content.push(Helper.newSegFromArrayWithBez('HISAL', 5,bez,[[1,NULL,280,12346789],"Normalsparen","EUR",["C","4,36","EUR","20150219"]]));
+		else if(segment.vers=="6")
+			ctrl.content.push(Helper.newSegFromArrayWithBez('HISAL', 6,bez,[[1,NULL,280,12346789],"Normalsparen","EUR",["C","4,36","EUR","20150219"]]));
+		else if(segment.vers=="7")
+			ctrl.content.push(Helper.newSegFromArrayWithBez('HISAL', 7,bez,[["DE92232323","GENOT",NULL,280,12346789],"Normalsparen","EUR",["C","4,36","EUR","20150219"]]));
+    	return true;
+    };
 };

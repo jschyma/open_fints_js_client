@@ -297,7 +297,7 @@ describe('testserver',function(){
 					throw error;
 				}else{
 					client.konten[0].sepa_data.should.not.equal(null);
-					client.MsgGetSaldo(client.konten[0].sepa_data,null,null,mocha_catcher(done,function(error2,rMsg,data){
+					client.MsgGetSaldo(client.konten[0].sepa_data,mocha_catcher(done,function(error2,rMsg,data){
 						// TODO Better Test Case
 						if(error2){
 							throw error2;
@@ -309,5 +309,35 @@ describe('testserver',function(){
 					}));
 				}
 		}));
+	});
+	describe('HBCI 2.2', function(){
+		before(function(){
+				myFINTSServer.proto_version = 220;
+		});
+		it('Test 6.1 - EstablishConnection',function(done){
+			var client = new FinTSClient(12345678,"test1","1234",bankenliste,logger("Test 6.1"));
+			client.EstablishConnection(mocha_catcher(done,function(error){
+				if(error){
+					throw error;
+				}else{
+					client.bpd.should.have.property("vers_bpd","78");
+					client.upd.should.have.property("vers_upd","3");
+					client.sys_id.should.equal("DDDA10000000000000000000000A");
+					client.konten.should.be.an.Array;
+					client.konten.should.have.a.lengthOf(2);
+					client.konten[0].iban.should.equal("DE111234567800000001");
+					should(client.konten[0].sepa_data).not.equal(null);
+					client.konten[0].sepa_data.iban.should.equal("DE111234567800000001");
+					client.konten[0].sepa_data.bic.should.equal("GENODE00TES");
+					done();
+				}
+			}));
+		});
+		after(function(){
+			myFINTSServer.proto_version = 300;
+		});
+	});
+	after(function(done){
+		setTimeout(function(){done();},1000);
 	});
 });
