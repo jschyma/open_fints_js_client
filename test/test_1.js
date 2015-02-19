@@ -297,7 +297,7 @@ describe('testserver',function(){
 					throw error;
 				}else{
 					client.konten[0].sepa_data.should.not.equal(null);
-					client.MsgGetSaldo(client.konten[0].sepa_data,null,null,mocha_catcher(done,function(error2,rMsg,data){
+					client.MsgGetSaldo(client.konten[0].sepa_data,mocha_catcher(done,function(error2,rMsg,data){
 						// TODO Better Test Case
 						if(error2){
 							throw error2;

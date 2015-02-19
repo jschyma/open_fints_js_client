@@ -53,7 +53,7 @@ var logger = function(n){
 		return null;
 };
 
-describe('tests_real',function(){
+describe('test_real',function(){
 	this.timeout(20*60*1000);
 	var myFINTSServer = null;
 	var credentials = null;
@@ -99,17 +99,27 @@ describe('tests_real',function(){
 		var client = new FinTSClient(credentials.blz,credentials.user,credentials.pin,credentials.bankenliste,logger("Test 1"));
 		var old_url = client.dest_url;
 		client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
-			if(error)
-				throw error;
+			if(error){
+				var pv = "";
+				try{
+					pv = recvMsg.selectSegByName("HNHBK")[0].getEl(2);
+					console.log(pv);
+				}catch(xe){console.log(xe);}
+				if(pv=="220"){
+					previous_tests_ok = true;
+					return done(new Error("This is just because of HBCI 2.2 Error:"+error.toString()));
+				}else
+					throw error;
+			}
 			client.bpd.should.have.property("vers_bpd");
 			client.upd.should.have.property("vers_upd");
 			client.sys_id.should.not.equal("");
 			client.konten.should.be.an.Array;
-			client.MsgEndDialog(mocha_catcher(done,function(error,recvMsg2){
+			client.MsgCheckAndEndDialog(recvMsg,mocha_catcher(done,function(error,recvMsg2){
 					if(error)
 						throw error;
 					previous_tests_ok = true;
-					done();
+					return done();
 				}));
 		}));
 	});
@@ -118,10 +128,10 @@ describe('tests_real',function(){
 		var client = new FinTSClient(credentials.blz,"wrong","12345",credentials.bankenliste,logger("Test 2"));
 		var old_url = client.dest_url;
 		client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
-			client.MsgEndDialog(function(error,recvMsg2){	});
+			client.MsgCheckAndEndDialog(recvMsg,function(error,recvMsg2){	});
 			if(error){
 				previous_tests_ok = true;
-				done();
+				return done();
 			}else{
 				throw "Erfolg sollte nicht passieren";
 			}
@@ -134,15 +144,15 @@ describe('tests_real',function(){
 				// login with good pin to reset bad counter
 				var client = new FinTSClient(credentials.blz,credentials.user,credentials.pin,credentials.bankenliste,logger("wrong_pin_test after"));
 				var old_url = client.dest_url;
-				client.MsgInitDialog(function(error,recvMsg,has_neu_url){
+				client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
 					if(error)
 						console.log(error);
-					client.MsgEndDialog(function(error,recvMsg2){
+					client.MsgCheckAndEndDialog(recvMsg,mocha_catcher(done,function(error,recvMsg2){
 							if(error)
 								console.log(error);
 							done();
-						});		
-				});
+						}));	
+				}));
 			}else{
 				done();
 			}
@@ -153,10 +163,10 @@ describe('tests_real',function(){
 			var client = new FinTSClient(credentials.blz,credentials.user,"12345",credentials.bankenliste,logger("Test 3"));
 			var old_url = client.dest_url;
 			client.MsgInitDialog(mocha_catcher(done,function(error,recvMsg,has_neu_url){
-				client.MsgEndDialog(function(error2,recvMsg2){	});
+				client.MsgCheckAndEndDialog(recvMsg,function(error2,recvMsg2){	});
 				should(error).not.be.null;
 				previous_tests_ok = true;
-				done();	
+				done();
 			}));
 		});
 	});
@@ -196,7 +206,7 @@ describe('tests_real',function(){
 							should(data).not.equal(null);
 							data.should.be.an.Array;
 							// Testcase erweitern
-							client.MsgEndDialog(function(error,recvMsg2){	});
+							client.MsgCheckAndEndDialog(rMsg,function(error,recvMsg2){	});
 							previous_tests_ok = true;
 							done();
 						}
@@ -212,13 +222,12 @@ describe('tests_real',function(){
 					throw error;
 				}else{
 					client.konten[0].sepa_data.should.not.equal(null);
-					client.MsgGetSaldo(client.konten[0].sepa_data,null,null,mocha_catcher(done,function(error2,rMsg,data){
-						// TODO Better Test Case
+					client.MsgGetSaldo(client.konten[0].sepa_data,mocha_catcher(done,function(error2,rMsg,data){
+						if(rMsg)	client.MsgCheckAndEndDialog(rMsg,function(error,recvMsg2){	});
 						if(error2){
 							throw error2;
 						}else{
 							// Testcase erweitern
-							client.MsgEndDialog(function(error,recvMsg2){	});
 							previous_tests_ok = true;
 							done();
 						}
