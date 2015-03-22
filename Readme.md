@@ -235,6 +235,7 @@ client.EstablishConnection(function(error){
 																				'text':"",
 																				'bic_kontrahent':"",
 																				'iban_kontrahent':"",
+																				'name_kontrahent':"",
 																				'text_key_addion':""
 																			}
 																	}
