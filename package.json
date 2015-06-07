@@ -20,7 +20,7 @@
     "test_server": "node dev/Run_FinTSServer.js",
     "demo": "node examples/zeige_kontoumsaetze.js log | bunyan -l trace",
     "demo_dbg": "node-debug examples/zeige_kontoumsaetze.js  | bunyan -l trace",
-	"test_dbg": "node-debug _mocha -g 'test_real Test 1'"
+    "test_dbg": "node-debug _mocha -g 'test_real Test 1'"
   },
   "repository": {
     "type": "git",
@@ -49,11 +49,12 @@
     "bunyan": "~1.3.3"
   },
   "devDependencies": {
-	"bunyan-live-logger": "~1.0.2",
-    "mocha": "2.1.0",
-    "istanbul": "~0.3.5",
-    "should": "4.4.2",
+    "body": "4.5.0",
+    "bunyan-live-logger": "~1.0.2",
+    "cors": "^2.7.1",
     "express": "~3.4.4",
-    "body": "4.5.0"
+    "istanbul": "~0.3.5",
+    "mocha": "2.1.0",
+    "should": "4.4.2"
   }
 }

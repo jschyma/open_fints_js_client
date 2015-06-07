@@ -19,6 +19,7 @@
  *	
  */
 var express = require('express');
+var cors = require('cors');
 var http = require('http');
 var textBody = require("body");
 var FinTSServer = require("./FinTSServer.js");
@@ -32,6 +33,13 @@ var app = express();
 var myFINTSServer = new FinTSServer();
 var myFINTSServer22 = new FinTSServer();
 myFINTSServer22.proto_version = 220;
+
+app.use(
+	cors({
+		origin: true,
+		credentials: true
+	})
+);
 app.configure(function () {
 	app.get("/",function(req, res){
 		res.setHeader('Content-Type', 'text/html');
