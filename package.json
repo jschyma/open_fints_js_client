@@ -12,7 +12,8 @@
     "History.md",
     "Readme.md",
     "index.js",
-    "lib/"
+    "lib/",
+	"dev/"
   ],
   "scripts": {
     "test": "mocha",
