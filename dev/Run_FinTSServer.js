@@ -60,6 +60,7 @@ app.configure(function () {
 			res.setHeader('Content-Type', 'text/plain');
 			res.send(myFINTSServer.handleIncomeMessage(body));
 		});
+	});
 		
 	app.post("/cgi-bin/hbciservlet_proxy",function(req2, res2){
 		textBody(req2, res2, function (err, body) {
@@ -114,4 +115,4 @@ console.log('Listening at IP ' + ipaddr +' on port '+port);
 server.listen(port,ipaddr, function(){
   var addr = server.address();
   console.log("FinTS server running at:", addr.address + ":" + addr.port+"/cgi-bin/hbciservlet");
-});;
+});
