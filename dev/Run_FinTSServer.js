@@ -19,6 +19,7 @@
  *	
  */
 var express = require('express');
+var cors = require('cors');
 var http = require('http');
 var textBody = require("body");
 var FinTSServer = require("./FinTSServer.js");
@@ -32,6 +33,13 @@ var app = express();
 var myFINTSServer = new FinTSServer();
 var myFINTSServer22 = new FinTSServer();
 myFINTSServer22.proto_version = 220;
+
+app.use(
+	cors({
+		origin: true,
+		credentials: true
+	})
+);
 app.configure(function () {
 	app.get("/",function(req, res){
 		res.setHeader('Content-Type', 'text/html');
@@ -60,6 +68,7 @@ app.configure(function () {
 			res.setHeader('Content-Type', 'text/plain');
 			res.send(myFINTSServer.handleIncomeMessage(body));
 		});
+	});
 		
 	app.post("/cgi-bin/hbciservlet_proxy",function(req2, res2){
 		textBody(req2, res2, function (err, body) {
@@ -114,4 +123,4 @@ console.log('Listening at IP ' + ipaddr +' on port '+port);
 server.listen(port,ipaddr, function(){
   var addr = server.address();
   console.log("FinTS server running at:", addr.address + ":" + addr.port+"/cgi-bin/hbciservlet");
-});;
+});
