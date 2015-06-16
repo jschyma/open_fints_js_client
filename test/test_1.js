@@ -67,24 +67,22 @@ describe('testserver',function(){
 		var app = express();
 		myFINTSServer = new FinTSServer();
 		myFINTSServer.my_debug_log = false;
-		app.configure(function () {
-			app.get("/",function(req, res){
-				res.setHeader('Content-Type', 'text/html');
-				res.send("Test FinTS Server - at /cgi-bin/hbciservlet und BLZ = 12345678");
+		app.get("/",function(req, res){
+			res.setHeader('Content-Type', 'text/html');
+			res.send("Test FinTS Server - at /cgi-bin/hbciservlet und BLZ = 12345678");
+		});
+			
+		app.post("/cgi-bin/hbciservlet",function(req, res){
+			textBody(req, res, function (err, body) {
+				// err probably means invalid HTTP protocol or some shiz.
+				if (err) {
+					res.statusCode = 500;
+					return res.end("NO U");
+				}
+				res.setHeader('Content-Type', 'text/plain');
+				res.send(myFINTSServer.handleIncomeMessage(body));
 			});
 			
-			app.post("/cgi-bin/hbciservlet",function(req, res){
-				textBody(req, res, function (err, body) {
-					// err probably means invalid HTTP protocol or some shiz.
-					if (err) {
-						res.statusCode = 500;
-						return res.end("NO U");
-					}
-					res.setHeader('Content-Type', 'text/plain');
-					res.send(myFINTSServer.handleIncomeMessage(body));
-				});
-				
-			});
 		});
 
 		var server = http.createServer(app);
