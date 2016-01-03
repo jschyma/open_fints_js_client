@@ -3,9 +3,9 @@
 
 FinTS/HBCI ist eine standardisierte Schnittstelle zur Kommunikation mit Banken von der Deutschen Kreditwirtschaft (DK).
 Es existieren derzeit drei Versionen der Schnittstelle.
-  * HBCI 2.2 bzw. HBCI+									--> Diese API unterstützt diese Version.
-  * FinTS 3.0	(noch weites gehend auf HBCI basierend) --> Diese API unterstützt diese Version.
-  * FinTS 4.1	(neuste auf XML basierend)				--> keine Unterstützung (noch keine große Verbreitung)
+  * HBCI 2.2 bzw. HBCI+									- Diese API unterstützt diese Version.
+  * FinTS 3.0	(noch weitestgehend auf HBCI basierend) - Diese API unterstützt diese Version.
+  * FinTS 4.1	(neuste auf XML basierend)				- keine Unterstützung (noch keine große Verbreitung)
 
 Der Open-Fin-TS-JS-Client unterstützt zurzeit nur die Version FinTS 3.0 mit der Pin/Tan Sicherheitsvariante.
 
@@ -21,7 +21,7 @@ Zurzeit (2015) nur eine für Javascript, diese ist allerdings kommerziell. Diese
 
 ### Unterstützte Plattformen
   * Node-JS
-  * Browserfy (In Arbeit) - allerdings ist hier ein Umweg notwendig wegen der Cross-origin resource sharing Problematik in normalen Browsern
+  * Browserfy - allerdings ist hier ein Umweg notwendig wegen der Cross-origin resource sharing Problematik in normalen Browsern
   * weitere Plattformen mit Anpassungen denkbar
 
 ## License
@@ -261,6 +261,67 @@ client.EstablishConnection(function(error){
 																 "faelligkeit_date":Date}
 		closeSecure ()			-	Stellt sicher, dass keine Sensiblen Informationen wie die PIN noch im RAM sind, sollte am Ende immer gerufen werden
 ```
+Besonders zu beachten ist, dass pro FinTS-Dialog, das heißt pro FinTSClient Objekt nur auf ein Callback gleichzeitig gewartet werden kann. Das liegt daran, dass das FinTS Protokoll ein sequenzielles Protokoll ist, welches nur eine Nachricht als Anfrage pro Dialog zur selben Zeit erlaubt. Der Nutzer der Client-Bibliothek hat sicherzustellen, dass nur eine Anfrage zur selben Zeit läuft. Wird dies nicht eingehalten führt die Client Library das Senden der Nachricht nicht aus und schmeißt eine Exception. Ein Beispiel das die falsche und richtige Verwendung der Client-Library zeigt:
+```javascript
+// Achtung: Falsche Verwendung führt zu einer Exception
+client.MsgGetKontoUmsaetze(client.konten[0].sepa_data,null,null,function(error2,rMsg,data){ 
+	... do something ... } );
+client.MsgGetKontoUmsaetze(client.konten[1].sepa_data,null,null,function(error2,rMsg,data){
+	... do something ... } );// Hier wird eine Exception geschmissen
+client.MsgGetKontoUmsaetze(client.konten[2].sepa_data,null,null,function(error2,rMsg,data){
+	... do something ... } );// Hier wird eine Exception geschmissen
+client.MsgGetKontoUmsaetze(client.konten[3].sepa_data,null,null,function(error2,rMsg,data){
+	... do something ... } );// Hier wird eine Exception geschmissen
+// Richtige Aufruf Hirarchie von Mehrfachen Aufträgen pro Dialog
+client.MsgGetKontoUmsaetze(client.konten[0].sepa_data,null,null,function(error2,rMsg,data){ 
+	//... do something ... 
+	client.MsgGetKontoUmsaetze(client.konten[1].sepa_data,null,null,function(error2,rMsg,data){
+		//... do something ... 
+		client.MsgGetKontoUmsaetze(client.konten[2].sepa_data,null,null,function(error2,rMsg,data){
+			//... do something ... 
+			client.MsgGetKontoUmsaetze(client.konten[3].sepa_data,null,null,function(error2,rMsg,data){
+				//... do something ... 
+				// Done
+			} );
+		} );
+	} );	 
+} );
+// Die Schachtelung von Callback-Funktionen führt hier zu sehr unleserlichen Code
+// Lösen können dies Biblitheken die speziell für dieses Problem entwickelt wurden
+// ein Beispiel ist ASYNC vgl. https://www.npmjs.com/package/async
+	var async = require("async");
+	async.series([
+	    function(callback){
+	        client.MsgGetKontoUmsaetze(client.konten[0].sepa_data,null,null,function(error2,rMsg,data){ 
+	        	//... do something ...
+	        	callback(null, 'result_1');
+	        });
+	    },
+	    function(callback){
+	        client.MsgGetKontoUmsaetze(client.konten[1].sepa_data,null,null,function(error2,rMsg,data){ 
+	        	//... do something ...
+	        	callback(null, 'result_2');
+	        });
+	    },
+	    // ...
+	],
+	function(err, results){
+	    // results is now equal to ['result_1', 'result_2']
+	    // done
+	});
+// bzw. als Schleife
+	async.eachSeries([1,2,3,4], function(i, callback) {
+		client.MsgGetKontoUmsaetze(client.konten[i].sepa_data,null,null,function(error2,rMsg,data){ 
+	        	//... do something ...
+	        	callback(null, 'result');
+	        });
+	},
+	function(err, results){
+	    // results is now equal to ['result', 'result']
+	    // done
+	});
+```
+
 ## Entwickler-Tools
 
 Das Projekt beinhaltet auch einen FinTS 3.0 Server.
