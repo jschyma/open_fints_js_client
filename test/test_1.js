@@ -230,6 +230,26 @@ describe('testserver',function(){
 			}
 		}));
 	});
+	it('Test 6.1 - EstablishConnection - Test Wrong User',function(done){
+		var client = new FinTSClient(12345678,"test1_wrong_user","1234",bankenliste,logger("Test 6.1"));
+		client.EstablishConnection(mocha_catcher(done,function(error){
+			if(error){
+				done();
+			}else{
+				throw "Kein Fehler trotz falscher Benutzer!";
+			}
+		}));
+	});
+	it('Test 6.2 - EstablishConnection - Test Wrong password',function(done){
+		var client = new FinTSClient(12345678,"test1","123d",bankenliste,logger("Test 6.2"));
+		client.EstablishConnection(mocha_catcher(done,function(error){
+			if(error){
+				done();
+			}else{
+				throw "Kein Fehler trotz falschem Passwort.";
+			}
+		}));
+	});
 	it('Test 7 - MsgGetKontoUmsaetze',function(done){
 			var client = new FinTSClient(12345678,"test1","1234",bankenliste,logger("Test 7"));
 			client.EstablishConnection(mocha_catcher(done,function(error){
