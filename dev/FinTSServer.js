@@ -227,6 +227,10 @@ module.exports = function(){
     	// 2. prüfen ob User existiert
     	if(me.user_db[dialog_obj.user]===undefined){
     		// Error Code 9210 User unbekannt
+			// Es gibt hier diverse auf diverse segmente HKVVB,HNSHK,HKIDN
+			// 9931 - "Sperrung des Kontos nach %1 Fehlversuchen"
+			// 9010 - "Verarbeitung nicht möglich"
+			// 9210 - "diverse"
     		resp_to_seg = Helper.newSegFromArrayWithBez("HIRMS", 2,HKIDN.nr, [[9010,NULL,"User unbekannt"]]);
     		error = true;
     	}else{
