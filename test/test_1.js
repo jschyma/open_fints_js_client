@@ -355,6 +355,41 @@ describe('testserver',function(){
 			myFINTSServer.proto_version = 300;
 		});
 	});
+	it('Test 9 - MsgGetKontoUmsaetze - test series calls',function(done){
+			var client = new FinTSClient(12345678,"test1","1234",bankenliste,logger("Test 9"));
+			client.EstablishConnection(mocha_catcher(done,function(error){
+				if(error){
+					throw error;
+				}else{
+					var error_checked_okay = false;
+					client.konten[0].sepa_data.should.not.equal(null);
+					client.MsgGetKontoUmsaetze(client.konten[0].sepa_data,null,null,mocha_catcher(done,function(error2,rMsg,data){
+						if(error2){
+							throw error2;
+						}else{
+							// Alles gut
+							should(data).not.equal(null);
+							data.should.be.an.Array;
+							should(data[0]).not.equal(null);
+							should(data[1]).not.equal(null);
+							data[0].schlusssaldo.value.should.equal(1223.57);
+							data[1].schlusssaldo.value.should.equal(1423.6);
+							
+							should(error_checked_okay).be.ok;
+							done();
+						}
+					}));
+					// das ist der eigentliche Test
+					try{
+						client.MsgGetKontoUmsaetze(client.konten[0].sepa_data,null,null,mocha_catcher(done,function(error2,rMsg,data){}));
+					}catch(error_to_check){
+						should(error_to_check).not.equal(null);
+						error_to_check.should.be.instanceOf(client.Exceptions.OutofSequenceMessageException);
+						error_checked_okay = true;
+					}
+				}
+			}));
+		});
 	after(function(done){
 		setTimeout(function(){done();},1000);
 	});
