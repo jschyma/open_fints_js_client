@@ -268,6 +268,17 @@ describe('testserver',function(){
 							should(data[1]).not.equal(null);
 							data[0].schlusssaldo.value.should.equal(1223.57);
 							data[1].schlusssaldo.value.should.equal(1423.6);
+							// Test converter
+							var u_list = client.ConvertUmsatzeArrayToListofAllTransactions(data);
+							should(u_list).not.equal(null);
+							u_list.should.be.an.Array;
+							should(u_list[0]).not.be.undefined;
+							should(u_list[1]).not.be.undefined;
+							should(u_list[2]).not.be.undefined;
+							should(u_list[3]).be.undefined;
+							u_list[0].value.should.equal(182.34);
+							u_list[1].value.should.equal(100.03);
+							u_list[2].value.should.equal(100.00);
 							// Testcase erweitern
 							done();
 						}
