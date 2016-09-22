@@ -1,6 +1,6 @@
 {
   "name": "open-fin-ts-js-client",
-  "version": "2.0.4",
+  "version": "3.0.0",
   "description": "JS Client für FinTS/HBCI.",
   "main": "index.js",
   "directories": {
@@ -38,7 +38,7 @@
     "Pin/Tan"
   ],
   "author": "Jens Schyma <jeschyma@gmail.com>",
-  "license": "AGPLv3",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/jschyma/open_fints_js_client/issues"
   },
