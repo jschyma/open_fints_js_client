@@ -21,12 +21,13 @@ Zurzeit (2015) nur eine für Javascript, diese ist allerdings kommerziell. Diese
 
 ### Unterstützte Plattformen
   * Node-JS
-  * Browserfy - allerdings ist hier ein Umweg notwendig wegen der Cross-origin resource sharing Problematik in normalen Browsern
   * weitere Plattformen mit Anpassungen denkbar
+
+JS im Browser ist ohne besondere Umwege(zB Browser Extensions) aufgrund der Architektur von FinTS(Server senden keinen CORS Header) nicht möglich.
 
 ## License
 	Das Projekt wurde 2015 von Jens Schyma jeschyma@gmail.com ins Leben gerufen.
-  [AGPL](LICENSE)  
+  [Apache2](LICENSE)  
 
 ## Quick-Start
 Der einfachste Weg ist Open-Fin-TS-JS-Client über NPM durch eine Dependency in der package.json in ein Projekt einzubinden.
