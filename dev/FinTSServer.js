@@ -1,32 +1,32 @@
 /*
-* 	  Copyright 2015-2016 Jens Schyma jeschyma@gmail.com
-*
-*	  This File is a Part of the source of Open-Fin-TS-JS-Client.
-*
-*
-*
-*  This file is licensed to you under the Apache License, Version 2.0 (the
-*  "License"); you may not use this file except in compliance
-*  with the License.  You may obtain a copy of the License at
-*
-*  http://www.apache.org/licenses/LICENSE-2.0
-*  or in the LICENSE File contained in this project.
-*
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*
-*
-*
-*  See the NOTICE file distributed with this work for additional information
-*  regarding copyright ownership.
-*
-*
-*/
+ *  Copyright 2015-2016 Jens Schyma jeschyma@gmail.com
+ *
+ *  This File is a Part of the source of Open-Fin-TS-JS-Client.
+ *
+ *
+ *
+ *  This file is licensed to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *  or in the LICENSE File contained in this project.
+ *
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ *
+ *
+ *
+ *  See the NOTICE file distributed with this work for additional information
+ *  regarding copyright ownership.
+ *
+ *
+ */
 // Dieser FinTS 3.0 Server ist nur für Testzwecke und gibt daher auch nur Dummy Daten zurück
 // der Funktionsumfang ist deutlich beschränkt und dient Primär des Tests des FinTSJSClients
 'use strict'
@@ -54,19 +54,19 @@ module.exports = function () {
   me.handleIncomeMessage = function (txt) {
     var s = new Buffer(txt, 'base64').toString('utf8')
     if (me.my_debug_log) { console.log('Incoming: \t' + s) }
-// Debug save incoming
+    // Debug save incoming
     fs.appendFileSync('log_send_msg.txt', 'Neue Msg Nr: ' + me.dbg_log_nr + '\n\r' + s + '\n\r\n\r')
     me.dbg_log_nr++
-// End Debug
+    // End Debug
     var recvMsg = new Nachricht(me.proto_version)
     try {
       recvMsg.parse(s)
       var sendtxt = null
       var sendMsg = null
-// 1. Schauen ob schon exitierender Dialog
+      // 1. Schauen ob schon exitierender Dialog
       var dialog_obj = me.getDialogFromMsg(recvMsg)
       if (dialog_obj === null) {
-// Initialisierung
+        // Initialisierung
         var r = me.handleDialogInit(recvMsg)
         if (r.e) {
           sendMsg = r.msg
@@ -76,18 +76,18 @@ module.exports = function () {
           sendMsg = r.msg
         }
       } else {
-// Normale nachricht
+        // Normale nachricht
         sendMsg = me.createSendMsg(recvMsg, dialog_obj)
-// Signatur prüfen
+        // Signatur prüfen
         if (!me.checkSignature(recvMsg, dialog_obj)) {
           sendMsg.addSeg(Helper.newSegFromArray('HIRMG', 2, [[9800, NULL, 'Dialog abgebrochen!']]))
           sendMsg.addSeg(Helper.newSegFromArrayWithBez('HIRMS', 2, recvMsg.selectSegByName('HNSHA')[0].nr, [[9340, NULL, 'Pin falsch']]))
           sendtxt = 'ERROR'
         } else {
-// alles okay
+          // alles okay
         }
       }
-// 2. weiter bearbeiten
+      // 2. weiter bearbeiten
       if (sendtxt === null) {
         var ctrl = {
           'gmsg': {},
@@ -96,10 +96,10 @@ module.exports = function () {
         }
         for (var i = 1; i != recvMsg.segments.length - 1; i++) {
           if (recvMsg.segments[i].name == 'HNHBK' ||
-recvMsg.segments[i].name == 'HNHBS' ||
-recvMsg.segments[i].name == 'HNSHA' ||
-recvMsg.segments[i].name == 'HNSHK') {
-// nichts tun
+              recvMsg.segments[i].name == 'HNHBS' ||
+              recvMsg.segments[i].name == 'HNSHA' ||
+              recvMsg.segments[i].name == 'HNSHK') {
+            // nichts tun
           } else if (recvMsg.segments[i].name == 'HKIDN') {
             if (!me.handleHKIDN(recvMsg.segments[i], ctrl, dialog_obj, recvMsg)) { break }
           } else if (recvMsg.segments[i].name == 'HKVVB') {
@@ -116,7 +116,7 @@ recvMsg.segments[i].name == 'HNSHK') {
     if (!me.handleHKSAL(recvMsg.segments[i], ctrl, dialog_obj, recvMsg)) { break }
   }
         }
-// Nachricht zusammenbauen
+        // Nachricht zusammenbauen
 
         var gmsg_array = []
         for (var k in ctrl.gmsg) {
@@ -124,10 +124,10 @@ recvMsg.segments[i].name == 'HNSHK') {
         }
         if (gmsg_array.length > 0) {
           sendMsg.addSeg(Helper.newSegFromArray('HIRMG', 2, gmsg_array))
-/* case 0:sendMsg.addSeg(Helper.newSegFromArray("HIRMG", 2, [["0010",NULL,"Entgegengenommen !"]]));break;
-case 1:sendMsg.addSeg(Helper.newSegFromArray("HIRMG", 2, [[3060,NULL,"Bitte beachten Sie die enthaltenen Warnungen/Hinweise"]]));break;
-case 2:sendMsg.addSeg(Helper.newSegFromArray("HIRMG", 2, [[9010,NULL,"Verarbeitung nicht moglich"]]));break;
-case 3:sendMsg.addSeg(Helper.newSegFromArray("HIRMG", 2, [[9800,NULL,"Dialog abgebrochen!"]]));break; */
+          /* case 0:sendMsg.addSeg(Helper.newSegFromArray("HIRMG", 2, [["0010",NULL,"Entgegengenommen !"]]));break;
+          case 1:sendMsg.addSeg(Helper.newSegFromArray("HIRMG", 2, [[3060,NULL,"Bitte beachten Sie die enthaltenen Warnungen/Hinweise"]]));break;
+          case 2:sendMsg.addSeg(Helper.newSegFromArray("HIRMG", 2, [[9010,NULL,"Verarbeitung nicht moglich"]]));break;
+          case 3:sendMsg.addSeg(Helper.newSegFromArray("HIRMG", 2, [[9800,NULL,"Dialog abgebrochen!"]]));break; */
         }
         for (var i = 0; i != ctrl.msgs.length; i++) {
           sendMsg.addSeg(ctrl.msgs[i])
@@ -184,9 +184,9 @@ case 3:sendMsg.addSeg(Helper.newSegFromArray("HIRMG", 2, [[9800,NULL,"Dialog abg
   }
 
   me.handleDialogInit = function (recvMsg) {
-// HBCI 2.2 check
+    // HBCI 2.2 check
     if (me.proto_version == 220 && recvMsg.selectSegByName('HNHBK')[0].getEl(2) == '300') {
-// error
+      // error
       var sendMsg2 = new Nachricht(me.proto_version)
       var nachrichten_nr = recvMsg.selectSegByName('HNHBK')[0].getEl(4)
       sendMsg2.init('2352638484028120', nachrichten_nr)
@@ -199,7 +199,7 @@ case 3:sendMsg.addSeg(Helper.newSegFromArray("HIRMG", 2, [[9800,NULL,"Dialog abg
       sendMsg2.addSeg(Helper.newSegFromArrayWithBez('HIRMS', 2, 2, [['9110', NULL, 'Unbekannter Aufbau (HBMSG=10000)']]))
       return {'e': true, 'msg': sendMsg2}
     }
-// Dialog Initialisierung
+    // Dialog Initialisierung
     var dialog_nr = 'DIA_' + (me.next_dialog_nr++)
     me.dialog_array[dialog_nr] = {
       'dialog_nr': dialog_nr,
@@ -212,40 +212,40 @@ case 3:sendMsg.addSeg(Helper.newSegFromArray("HIRMG", 2, [[9800,NULL,"Dialog abg
     dialog_obj.user 		= HKIDN.getEl(2)
     dialog_obj.user_sys_id	= HKIDN.getEl(3)
     var HKVVB = recvMsg.selectSegByName('HKVVB')[0]
-// RC = 3050 BPD nicht mehr aktuell. Aktuelle Version folgt
+    // RC = 3050 BPD nicht mehr aktuell. Aktuelle Version folgt
     dialog_obj.client_name = HKVVB.getEl(5)
 
-// 0. Send Msg erstellen
+    // 0. Send Msg erstellen
     var sendMsg = me.createSendMsg(recvMsg, dialog_obj)
-// 1. System ID setzen
+    // 1. System ID setzen
     if (dialog_obj.user_sys_id == '0') {
       dialog_obj.user_sys_id = 'USER_SYS_ID'
     }
     var error = false
     var resp_to_seg = null
-// 2. prüfen ob User existiert
+    // 2. prüfen ob User existiert
     if (me.user_db[dialog_obj.user] === undefined) {
-// Error Code 9210 User unbekannt
-// Es gibt hier diverse auf diverse segmente HKVVB,HNSHK,HKIDN
-// 9931 - "Sperrung des Kontos nach %1 Fehlversuchen"
-// 9010 - "Verarbeitung nicht möglich"
-// 9210 - "diverse"
+      // Error Code 9210 User unbekannt
+      // Es gibt hier diverse auf diverse segmente HKVVB,HNSHK,HKIDN
+      // 9931 - "Sperrung des Kontos nach %1 Fehlversuchen"
+      // 9010 - "Verarbeitung nicht möglich"
+      // 9210 - "diverse"
       resp_to_seg = Helper.newSegFromArrayWithBez('HIRMS', 2, HKIDN.nr, [[9010, NULL, 'User unbekannt']])
       error = true
     } else {
-// Signatur prüfen
+      // Signatur prüfen
       if (!me.checkSignature(recvMsg, dialog_obj)) {
         resp_to_seg = Helper.newSegFromArrayWithBez('HIRMS', 2, recvMsg.selectSegByName('HNSHA')[0].nr, [[9340, NULL, 'Pin falsch']])
         error = true
       }
     }
     if (error) {
-// Fehler hier Fehler nachrichten zurück schicken
+      // Fehler hier Fehler nachrichten zurück schicken
       sendMsg.addSeg(Helper.newSegFromArray('HIRMG', 2, [[9800, NULL, 'Dialog abgebrochen!']]))
       sendMsg.addSeg(resp_to_seg)
       return {'e': true, 'msg': sendMsg}
     } else {
-// Bisher kein Fehler aufgetreten
+      // Bisher kein Fehler aufgetreten
       return {'e': false, 'msg': sendMsg, 'dia_obj': dialog_obj}
     }
   }

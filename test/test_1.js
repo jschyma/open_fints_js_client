@@ -1,32 +1,32 @@
 /*
-* 	  Copyright 2015-2016 Jens Schyma jeschyma@gmail.com
-*
-*	  This File is a Part of the source of Open-Fin-TS-JS-Client.
-*
-*
-*
-*  This file is licensed to you under the Apache License, Version 2.0 (the
-*  "License"); you may not use this file except in compliance
-*  with the License.  You may obtain a copy of the License at
-*
-*  http://www.apache.org/licenses/LICENSE-2.0
-*  or in the LICENSE File contained in this project.
-*
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*
-*
-*
-*  See the NOTICE file distributed with this work for additional information
-*  regarding copyright ownership.
-*
-*
-*/
+ *  Copyright 2015-2016 Jens Schyma jeschyma@gmail.com
+ *
+ *  This File is a Part of the source of Open-Fin-TS-JS-Client.
+ *
+ *
+ *
+ *  This file is licensed to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *  or in the LICENSE File contained in this project.
+ *
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ *
+ *
+ *
+ *  See the NOTICE file distributed with this work for additional information
+ *  regarding copyright ownership.
+ *
+ *
+ */
 
 'use strict'
 var express = require('express')
@@ -68,7 +68,7 @@ describe('testserver', function () {
     'undefined': {'url': ''}
   }
   before(function (done) {
-// Start the Server
+    // Start the Server
     var ipaddr = process.env.IP || '127.0.0.1'// process.env.IP;
     var port = process.env.PORT || 3000// process.env.PORT;
     var app = express()
@@ -81,7 +81,7 @@ describe('testserver', function () {
 
     app.post('/cgi-bin/hbciservlet', function (req, res) {
       textBody(req, res, function (err, body) {
-// err probably means invalid HTTP protocol or some shiz.
+        // err probably means invalid HTTP protocol or some shiz.
         if (err) {
           res.statusCode = 500
           return res.end('NO U')
@@ -99,7 +99,7 @@ describe('testserver', function () {
       bankenliste['12345678'].url = 'http://' + addr.address + ':' + addr.port + '/cgi-bin/hbciservlet'
       myFINTSServer.my_url = bankenliste['12345678'].url
       myFINTSServer.my_host = addr.address + ':' + addr.port
-// Logger
+      // Logger
       if (config && config.bunyan_live_logger) {
         g_log = bunyan.createLogger({
           name: 'testcases - withtestserver',
@@ -264,14 +264,14 @@ describe('testserver', function () {
           if (error2) {
             throw error2
           } else {
-// Alles gut
+            // Alles gut
             should(data).not.equal(null)
             data.should.be.an.Array
             should(data[0]).not.equal(null)
             should(data[1]).not.equal(null)
             data[0].schlusssaldo.value.should.equal(1223.57)
             data[1].schlusssaldo.value.should.equal(1423.6)
-// Test converter
+            // Test converter
             var u_list = client.ConvertUmsatzeArrayToListofAllTransactions(data)
             should(u_list).not.equal(null)
             u_list.should.be.an.Array
@@ -282,7 +282,7 @@ describe('testserver', function () {
             u_list[0].value.should.equal(182.34)
             u_list[1].value.should.equal(100.03)
             u_list[2].value.should.equal(100.00)
-// Testcase erweitern
+            // Testcase erweitern
             done()
           }
         }))
@@ -304,14 +304,14 @@ describe('testserver', function () {
             if (error2) {
               throw error2
             } else {
-// Alles gut
+              // Alles gut
               should(data).not.equal(null)
               data.should.be.an.Array
               should(data[0]).not.equal(null)
               should(data[1]).not.equal(null)
               data[0].schlusssaldo.value.should.equal(1223.57)
               data[1].schlusssaldo.value.should.equal(1423.6)
-// Testcase erweitern
+              // Testcase erweitern
               done()
             }
           }))
@@ -330,11 +330,11 @@ describe('testserver', function () {
       } else {
         client.konten[0].sepa_data.should.not.equal(null)
         client.MsgGetSaldo(client.konten[0].sepa_data, mocha_catcher(done, function (error2, rMsg, data) {
-// TODO Better Test Case
+          // TODO Better Test Case
           if (error2) {
             throw error2
           } else {
-// Testcase erweitern
+            // Testcase erweitern
             client.MsgEndDialog(function (error, recvMsg2) {	})
             done()
           }
@@ -381,7 +381,7 @@ describe('testserver', function () {
           if (error2) {
             throw error2
           } else {
-// Alles gut
+            // Alles gut
             should(data).not.equal(null)
             data.should.be.an.Array
             should(data[0]).not.equal(null)
@@ -393,7 +393,7 @@ describe('testserver', function () {
             done()
           }
         }))
-// das ist der eigentliche Test
+        // das ist der eigentliche Test
         try {
           client.MsgGetKontoUmsaetze(client.konten[0].sepa_data, null, null, mocha_catcher(done, function (error2, rMsg, data) {}))
         } catch (error_to_check) {

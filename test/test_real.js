@@ -1,32 +1,32 @@
 /*
-* 	  Copyright 2015-2016 Jens Schyma jeschyma@gmail.com
-*
-*	  This File is a Part of the source of Open-Fin-TS-JS-Client.
-*
-*
-*
-*  This file is licensed to you under the Apache License, Version 2.0 (the
-*  "License"); you may not use this file except in compliance
-*  with the License.  You may obtain a copy of the License at
-*
-*  http://www.apache.org/licenses/LICENSE-2.0
-*  or in the LICENSE File contained in this project.
-*
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*
-*
-*
-*  See the NOTICE file distributed with this work for additional information
-*  regarding copyright ownership.
-*
-*
-*/
+ *  Copyright 2015-2016 Jens Schyma jeschyma@gmail.com
+ *
+ *  This File is a Part of the source of Open-Fin-TS-JS-Client.
+ *
+ *
+ *
+ *  This file is licensed to you under the Apache License, Version 2.0 (the
+ *  "License"); you may not use this file except in compliance
+ *  with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *  or in the LICENSE File contained in this project.
+ *
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ *
+ *
+ *
+ *  See the NOTICE file distributed with this work for additional information
+ *  regarding copyright ownership.
+ *
+ *
+ */
 'use strict'
 var express = require('express')
 var http = require('http')
@@ -65,18 +65,19 @@ describe('test_real', function () {
   var credentials = null
   before(function (done) {
     credentials = require('./credentials.js')
-/*
-module.exports = {
-bankenliste:{
-'12345678':{'blz':12345678,'url':"http://localhost:3000/cgi-bin/hbciservlet"},
-"undefined":{'url':""}
-},
-blz:12345678,
-user:"",
-pin:"",
-bunyan_live_logger:true
-};
-*/
+    /*
+    module.exports = {
+      bankenliste:{
+        '12345678':{'blz':12345678,'url':"http://localhost:3000/cgi-bin/hbciservlet"},
+        "undefined":{'url':""}
+      },
+      blz:12345678,
+      user:"",
+      pin:"",
+      bunyan_live_logger:true
+    };
+    */
+
     credentials.should.have.property('bankenliste')
     credentials.should.have.property('user')
     credentials.should.have.property('pin')
@@ -145,7 +146,7 @@ bunyan_live_logger:true
     var test_performed = false
     after(function (done) {
       if (test_performed) {
-// login with good pin to reset bad counter
+        // login with good pin to reset bad counter
         var client = new FinTSClient(credentials.blz, credentials.user, credentials.pin, credentials.bankenliste, logger('wrong_pin_test after'))
         var old_url = client.dest_url
         client.MsgInitDialog(mocha_catcher(done, function (error, recvMsg, has_neu_url) {
@@ -204,10 +205,10 @@ error2.gv_type == 'HIKAZ') {
             }
             throw error2
           } else {
-// Alles gut
+            // Alles gut
             should(data).not.equal(null)
             data.should.be.an.Array
-// Testcase erweitern
+            // Testcase erweitern
             client.MsgCheckAndEndDialog(rMsg, function (error, recvMsg2) {	})
             previous_tests_ok = true
             done()
@@ -229,7 +230,7 @@ error2.gv_type == 'HIKAZ') {
           if (error2) {
             throw error2
           } else {
-// Testcase erweitern
+            // Testcase erweitern
             previous_tests_ok = true
             done()
           }
