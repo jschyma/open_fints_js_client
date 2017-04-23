@@ -46,7 +46,13 @@ var live = require('bunyan-live-logger')
 var g_log = null
 
 var logger = function (n) {
-  if (g_log) { return g_log.child({testcase: n}) } else { return null }
+  if (g_log) {
+    return g_log.child({
+      testcase: n
+    })
+  } else {
+    return null
+  }
 }
 
 var mocha_catcher = function (done, cb) {
@@ -64,13 +70,18 @@ describe('testserver', function () {
   this.timeout(2 * 60 * 1000)
   var myFINTSServer = null
   var bankenliste = {
-    '12345678': {'blz': 12345678, 'url': 'http://TOBESET/cgi-bin/hbciservlet'},
-    'undefined': {'url': ''}
+    '12345678': {
+      'blz': 12345678,
+      'url': 'http://TOBESET/cgi-bin/hbciservlet'
+    },
+    'undefined': {
+      'url': ''
+    }
   }
   before(function (done) {
     // Start the Server
-    var ipaddr = process.env.IP || '127.0.0.1'// process.env.IP;
-    var port = process.env.PORT || 3000// process.env.PORT;
+    var ipaddr = process.env.IP || '127.0.0.1' // process.env.IP;
+    var port = process.env.PORT || 3000 // process.env.PORT;
     var app = express()
     myFINTSServer = new FinTSServer()
     myFINTSServer.my_debug_log = false
@@ -104,13 +115,15 @@ describe('testserver', function () {
         g_log = bunyan.createLogger({
           name: 'testcases - withtestserver',
           src: true,
-          streams: [
-            {
-              level: 'trace',
-              stream: live({ready_cb: function () { done() }}),
-              type: 'raw'
-            }
-          ]
+          streams: [{
+            level: 'trace',
+            stream: live({
+              ready_cb: function () {
+                done()
+              }
+            }),
+            type: 'raw'
+          }]
         })
       } else {
         done()
@@ -122,7 +135,9 @@ describe('testserver', function () {
     var client = new FinTSClient(12345678, 'test1', '1234', bankenliste, logger('Test 1'))
     var old_url = client.dest_url
     client.MsgInitDialog(mocha_catcher(done, function (error, recvMsg, has_neu_url) {
-      if (error) { throw error }
+      if (error) {
+        throw error
+      }
       client.bpd.should.have.property('vers_bpd', '78')
       client.upd.should.have.property('vers_upd', '3')
       client.sys_id.should.equal('DDDA10000000000000000000000A')
@@ -163,7 +178,9 @@ describe('testserver', function () {
         throw error
       } else {
         client.MsgEndDialog(mocha_catcher(done, function (error, recvMsg2) {
-          if (error) { throw error }
+          if (error) {
+            throw error
+          }
           done()
         }))
       }
@@ -183,7 +200,9 @@ describe('testserver', function () {
         client.konten[0].iban.should.equal('DE111234567800000001')
         should(client.konten[0].sepa_data).equal(null)
         client.MsgRequestSepa(null, mocha_catcher(done, function (error3, recvMsg3, sepa_list) {
-          if (error3) { throw error3 }
+          if (error3) {
+            throw error3
+          }
           sepa_list.should.be.an.Array
           sepa_list[0].iban.should.equal('DE111234567800000001')
           sepa_list[0].bic.should.equal('GENODE00TES')
@@ -335,7 +354,7 @@ describe('testserver', function () {
             throw error2
           } else {
             // Testcase erweitern
-            client.MsgEndDialog(function (error, recvMsg2) {	})
+            client.MsgEndDialog(function (error, recvMsg2) {})
             done()
           }
         }))
@@ -405,6 +424,8 @@ describe('testserver', function () {
     }))
   })
   after(function (done) {
-    setTimeout(function () { done() }, 1000)
+    setTimeout(function () {
+      done()
+    }, 1000)
   })
 })

@@ -44,10 +44,11 @@ var myFINTSServer22 = new FinTSServer()
 myFINTSServer22.proto_version = 220
 
 app.use(
-cors({
-  origin: true,
-  credentials: true
-}))
+  cors({
+    origin: true,
+    credentials: true
+  })
+)
 
 app.get('/', function (req, res) {
   res.setHeader('Content-Type', 'text/html')

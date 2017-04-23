@@ -30,12 +30,12 @@
 /*
 Dieses Beispiel veranschaulicht wie der Client zu verwenden ist um Kontoumsätze anzuzeigen.
 */
-var FinTSClient = require('../')// require("open-fin-ts-js-client");
+var FinTSClient = require('../') // require("open-fin-ts-js-client");
 var log = null
 try {
   var logme = false
   process.argv.forEach(function (val, index, array) {
-    if (val == 'log')logme = true
+    if (val == 'log') logme = true
   })
   if (logme) {
     var bunyan = require('bunyan')
@@ -50,8 +50,13 @@ try {
 };
 // 1. Definition der Bankenliste - Echte URLs sind hier http://www.hbci-zka.de/institute/institut_auswahl.htm erhältlich
 var bankenliste = {
-  '12345678': {'blz': 12345678, 'url': 'http://localhost:3000/cgi-bin/hbciservlet'},
-  'undefined': {'url': ''}
+  '12345678': {
+    'blz': 12345678,
+    'url': 'http://localhost:3000/cgi-bin/hbciservlet'
+  },
+  'undefined': {
+    'url': ''
+  }
 }
 // 2. FinTSClient anlegen
 // BLZ: 12345678

@@ -56,7 +56,13 @@ var live = require('bunyan-live-logger')
 var g_log = null
 
 var logger = function (n) {
-  if (g_log) { return g_log.child({testcase: n}) } else { return null }
+  if (g_log) {
+    return g_log.child({
+      testcase: n
+    })
+  } else {
+    return null
+  }
 }
 
 describe('test_real', function () {
@@ -88,13 +94,15 @@ describe('test_real', function () {
       g_log = bunyan.createLogger({
         name: 'testcases - tests_real',
         src: true,
-        streams: [
-          {
-            level: 'trace',
-            stream: live({ready_cb: function () { done() }}),
-            type: 'raw'
-          }
-        ]
+        streams: [{
+          level: 'trace',
+          stream: live({
+            ready_cb: function () {
+              done()
+            }
+          }),
+          type: 'raw'
+        }]
       })
     } else {
       done()
@@ -111,18 +119,24 @@ describe('test_real', function () {
         try {
           pv = recvMsg.selectSegByName('HNHBK')[0].getEl(2)
           console.log(pv)
-        } catch (xe) { console.log(xe) }
+        } catch (xe) {
+          console.log(xe)
+        }
         if (pv == '220') {
           previous_tests_ok = true
           return done(new Error('This is just because of HBCI 2.2 Error:' + error.toString()))
-        } else { throw error }
+        } else {
+          throw error
+        }
       }
       client.bpd.should.have.property('vers_bpd')
       client.upd.should.have.property('vers_upd')
       client.sys_id.should.not.equal('')
       client.konten.should.be.an.Array
       client.MsgCheckAndEndDialog(recvMsg, mocha_catcher(done, function (error, recvMsg2) {
-        if (error) { throw error }
+        if (error) {
+          throw error
+        }
         previous_tests_ok = true
         return done()
       }))
@@ -133,7 +147,7 @@ describe('test_real', function () {
     var client = new FinTSClient(credentials.blz, 'wrong', '12345', credentials.bankenliste, logger('Test 2'))
     var old_url = client.dest_url
     client.MsgInitDialog(mocha_catcher(done, function (error, recvMsg, has_neu_url) {
-      client.MsgCheckAndEndDialog(recvMsg, function (error, recvMsg2) {	})
+      client.MsgCheckAndEndDialog(recvMsg, function (error, recvMsg2) {})
       if (error) {
         previous_tests_ok = true
         return done()
@@ -150,9 +164,13 @@ describe('test_real', function () {
         var client = new FinTSClient(credentials.blz, credentials.user, credentials.pin, credentials.bankenliste, logger('wrong_pin_test after'))
         var old_url = client.dest_url
         client.MsgInitDialog(mocha_catcher(done, function (error, recvMsg, has_neu_url) {
-          if (error) { console.log(error) }
+          if (error) {
+            console.log(error)
+          }
           client.MsgCheckAndEndDialog(recvMsg, mocha_catcher(done, function (error, recvMsg2) {
-            if (error) { console.log(error) }
+            if (error) {
+              console.log(error)
+            }
             done()
           }))
         }))
@@ -166,7 +184,7 @@ describe('test_real', function () {
       var client = new FinTSClient(credentials.blz, credentials.user, '12345', credentials.bankenliste, logger('Test 3'))
       var old_url = client.dest_url
       client.MsgInitDialog(mocha_catcher(done, function (error, recvMsg, has_neu_url) {
-        client.MsgCheckAndEndDialog(recvMsg, function (error2, recvMsg2) {	})
+        client.MsgCheckAndEndDialog(recvMsg, function (error2, recvMsg2) {})
         should(error).not.be.null
         previous_tests_ok = true
         done()
@@ -180,7 +198,7 @@ describe('test_real', function () {
       if (error) {
         throw error
       } else {
-        client.MsgEndDialog(function (error, recvMsg2) {	})
+        client.MsgEndDialog(function (error, recvMsg2) {})
         client.bpd.should.have.property('vers_bpd')
         client.upd.should.have.property('vers_upd')
         client.konten.should.be.an.Array
@@ -200,7 +218,7 @@ describe('test_real', function () {
         client.MsgGetKontoUmsaetze(client.konten[0].sepa_data, null, null, mocha_catcher(done, function (error2, rMsg, data) {
           if (error2) {
             if (error2 instanceof client.Exceptions.GVNotSupportedByKI &&
-error2.gv_type == 'HIKAZ') {
+              error2.gv_type == 'HIKAZ') {
               previous_tests_ok = true
             }
             throw error2
@@ -209,7 +227,7 @@ error2.gv_type == 'HIKAZ') {
             should(data).not.equal(null)
             data.should.be.an.Array
             // Testcase erweitern
-            client.MsgCheckAndEndDialog(rMsg, function (error, recvMsg2) {	})
+            client.MsgCheckAndEndDialog(rMsg, function (error, recvMsg2) {})
             previous_tests_ok = true
             done()
           }
@@ -226,7 +244,7 @@ error2.gv_type == 'HIKAZ') {
       } else {
         client.konten[0].sepa_data.should.not.equal(null)
         client.MsgGetSaldo(client.konten[0].sepa_data, mocha_catcher(done, function (error2, rMsg, data) {
-          if (rMsg)	client.MsgCheckAndEndDialog(rMsg, function (error, recvMsg2) {	})
+          if (rMsg) client.MsgCheckAndEndDialog(rMsg, function (error, recvMsg2) {})
           if (error2) {
             throw error2
           } else {
