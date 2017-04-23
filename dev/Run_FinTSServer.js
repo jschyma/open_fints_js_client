@@ -66,6 +66,7 @@ app.post('/cgi-bin/hbciservlet', function (req, res) {
     res.send(myFINTSServer.handleIncomeMessage(body))
   })
 })
+
 app.post('/cgi-bin/hbciservlet22', function (req, res) {
   textBody(req, res, function (err, body) {
     // err probably means invalid HTTP protocol or some shiz.
@@ -126,6 +127,7 @@ app.post('/cgi-bin/hbciservlet_proxy', function (req2, res2) {
 
 var server = http.createServer(app)
 console.log('Listening at IP ' + ipaddr + ' on port ' + port)
+
 server.listen(port, ipaddr, function () {
   var addr = server.address()
   console.log('FinTS server running at:', addr.address + ':' + addr.port + '/cgi-bin/hbciservlet')

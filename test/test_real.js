@@ -69,6 +69,7 @@ describe('test_real', function () {
   this.timeout(20 * 60 * 1000)
   var myFINTSServer = null
   var credentials = null
+
   before(function (done) {
     credentials = require('./credentials.js')
     /*
@@ -142,6 +143,7 @@ describe('test_real', function () {
       }))
     }))
   })
+
   it('Test 2 - MsgInitDialog wrong user', function (done) {
     checkPreviousTests()
     var client = new FinTSClient(credentials.blz, 'wrong', '12345', credentials.bankenliste, logger('Test 2'))
@@ -156,6 +158,7 @@ describe('test_real', function () {
       }
     }))
   })
+
   describe('wrong_pin_test', function () {
     var test_performed = false
     after(function (done) {
@@ -178,6 +181,7 @@ describe('test_real', function () {
         done()
       }
     })
+
     it('Test 3 - MsgInitDialog wrong pin', function (done) {
       checkPreviousTests()
       test_performed = true
@@ -191,6 +195,7 @@ describe('test_real', function () {
       }))
     })
   })
+
   it('Test 6 - EstablishConnection', function (done) {
     checkPreviousTests()
     var client = new FinTSClient(credentials.blz, credentials.user, credentials.pin, credentials.bankenliste, logger('Test 6'))
@@ -207,6 +212,7 @@ describe('test_real', function () {
       }
     }))
   })
+
   it('Test 7 - MsgGetKontoUmsaetze', function (done) {
     checkPreviousTests()
     var client = new FinTSClient(credentials.blz, credentials.user, credentials.pin, credentials.bankenliste, logger('Test 7'))
@@ -235,6 +241,7 @@ describe('test_real', function () {
       }
     }))
   })
+
   it('Test 8 - MsgGetSaldo', function (done) {
     checkPreviousTests()
     var client = new FinTSClient(credentials.blz, credentials.user, credentials.pin, credentials.bankenliste, logger('Test 8'))

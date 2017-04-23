@@ -466,6 +466,7 @@ module.exports = function () {
     ctrl.msgs.push(Helper.newSegFromArrayWithBez('HIRMS', 2, bez, msg_array))
     return true
   }
+
   me.handleHKSYN = function (segment, ctrl, dialog_obj) {
     var bez = segment.nr
     ctrl.msgs.push(Helper.newSegFromArrayWithBez('HIRMS', 2, bez, [
@@ -481,6 +482,7 @@ module.exports = function () {
     ctrl.gmsg['0100'] = ['0100', '', 'Dialog beendet.']
     return true
   }
+
   me.handleHKSPA = function (segment, ctrl, dialog_obj) {
     var bez = segment.nr
     ctrl.gmsg['0010'] = ['0010', '', 'Nachricht entgegengenommen.']
@@ -493,6 +495,7 @@ module.exports = function () {
     ]))
     return true
   }
+
   me.handleHKKAZ = function (segment, ctrl, dialog_obj) {
     var atOnceMode = function () {
       var bez = segment.nr
@@ -531,6 +534,7 @@ module.exports = function () {
       mt_490 += '-\r\n'
       ctrl.content.push(Helper.newSegFromArrayWithBez('HIKAZ', 7, bez, [Helper.Byte(mt_490)]))
     }
+
     var first = function () {
       var bez = segment.nr
       ctrl.gmsg['0010'] = ['0010', '', 'Nachricht entgegengenommen.']
@@ -553,6 +557,7 @@ module.exports = function () {
       mt_490 += ':20:STARTUMS\r\n'
       ctrl.content.push(Helper.newSegFromArrayWithBez('HIKAZ', 7, bez, [Helper.Byte(mt_490)]))
     }
+
     var second = function () {
       var bez = segment.nr
       ctrl.gmsg['0010'] = ['0010', '', 'Nachricht entgegengenommen.']
@@ -577,6 +582,7 @@ module.exports = function () {
       mt_490 += '-\r\n'
       ctrl.content.push(Helper.newSegFromArrayWithBez('HIKAZ', 7, bez, [Helper.Byte(mt_490)]))
     }
+
     var hikas_2_mode = me.hikas_2_mode
     if (!hikas_2_mode) {
       atOnceMode()
@@ -598,6 +604,7 @@ module.exports = function () {
     }
     return true
   }
+
   me.handleHKSAL = function (segment, ctrl, dialog_obj) {
     var bez = segment.nr
     ctrl.gmsg['0010'] = ['0010', '', 'Nachricht entgegengenommen.']
