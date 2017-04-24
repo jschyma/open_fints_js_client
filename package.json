@@ -48,8 +48,8 @@
     "npm": ">= 1.0.0"
   },
   "dependencies": {
-    "bunyan": "~1.4.0",
-    "encoding": "^0.1.11"
+    "bunyan": "~1.8.9",
+    "encoding": "^0.1.12"
   },
   "devDependencies": {
     "body": "5.0.0",
