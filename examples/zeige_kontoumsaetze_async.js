@@ -1,6 +1,6 @@
 /*
  *  Copyright 2015-2016 Jens Schyma jeschyma@gmail.com
- *
+ *  and in case of this file Reiner Bamberger
  *  This File is a Part of the source of Open-Fin-TS-JS-Client.
  *
  *  This file is licensed to you under the Apache License, Version 2.0 (the
@@ -52,17 +52,17 @@ var bankenliste = {
     'url': ''
   }
 }
+
 // 2. FinTSClient anlegen
 // BLZ: 12345678
 // Kunden-ID/Benutzerkennung: test1
 // PIN: 1234
 // Bankenliste siehe oben
 var client = new FinTSClient(12345678, 'test1', '1234', bankenliste, log)
-
 // start
 GetKontoUmsaetze()
 
-async GetKontoUmsaetze(){
+async function GetKontoUmsaetze () {
   try{
     // 3. Verbindung aufbauen
     await client.EstablishConnection()
@@ -76,14 +76,20 @@ async GetKontoUmsaetze(){
     }
     // Alles gut
     // 5. Umsätze darstellen
-    console.log(JSON.stringify(data))
+    console.log(JSON.stringify(daten))
 
-    // 6. Verbindung beenden
+    // 6. Zeige Salden
+    for (let konto of client.konten) {
+      let saldo = await client.MsgGetSaldo(konto.sepa_data)
+      console.log('Saldo von Konto ' + konto.iban + ' ist ' + JSON.stringify(saldo.saldo.saldo))
+    }
+
+    // 7. Verbindung beenden
     await client.MsgEndDialog()
   }catch(exception){
     console.error("Fehler: " + exception)
   }
-  // 7. Secure Daten im Objekt aus dem Ram löschen
+  // 8. Secure Daten im Objekt aus dem Ram löschen
   client.closeSecure()
   console.log('ENDE')
 }
