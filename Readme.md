@@ -1,4 +1,5 @@
-[![NPM Version][npm-image]][npm-url]
+[![npm](https://img.shields.io/npm/v/open-fin-ts-js-client-promise.svg)](https://www.npmjs.com/package/open-fin-ts-js-client-promise)
+
 # Open-Fin-TS-JS-Client
 
 	npm i open-fin-ts-js-client-promise
