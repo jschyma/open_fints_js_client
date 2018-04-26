@@ -1,6 +1,8 @@
 [![NPM Version][npm-image]][npm-url]
 # Open-Fin-TS-JS-Client
 
+	npm i open-fin-ts-js-client-promise
+
 FinTS/HBCI ist eine standardisierte Schnittstelle zur Kommunikation mit Banken von der Deutschen Kreditwirtschaft (DK).
 Es existieren derzeit drei Versionen der Schnittstelle.
   * HBCI 2.2 bzw. HBCI+									- Diese API unterstützt diese Version.
