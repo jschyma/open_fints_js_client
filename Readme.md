@@ -74,10 +74,18 @@ client.EstablishConnection(function(error){
 
 ## API Beschreibung
 ```js
-	FinTSClient(in_blz,in_kunden_id,in_pin,in_logger)
+	FinTSClient(in_blz,in_kunden_id,in_pin,in_bankenlist,in_logger)
 		in_blz			- Die entsprechende BLZ als Zahl oder String
 		in_kunden_id	- Die Benutzerkennung bzw. Kunden-ID - 9999999999 = Anonymer Benutzer
 		in_pin			- Die Pin
+		in_bankenlist	- Liste mit Bankdaten mit Key BLZ
+					{
+						'12345678': {
+							'blz':12345678,
+							'url':"https://localhost:3000/cgi-bin/hbciservlet"
+						},
+						"undefined":{'url':""}
+					};
 		in_logger		- Ein Bunyan Logger per default wird nichts gelogged
 		
 	Attribute
